@@ -1,4 +1,5 @@
 import { TextAttributes } from '@opentui/core';
+import { getTimeAgo } from '@/lib/time-ago';
 import type { Deployment, Deployments, Project } from '@/types/vercel-sdk';
 
 type Props = {
@@ -6,29 +7,12 @@ type Props = {
   deployments: Deployments;
 };
 
-// Choose a timestamp for sorting/formatting
 const getCreatedAt = (d: Deployment) => d.createdAt ?? d.created;
 
-// Very small relative time formatter (min/hours/days)
 const formatRelativeTime = (ts: number) => {
-  const diffMs = Date.now() - ts;
-  const s = Math.max(1, Math.floor(diffMs / 1000));
-  if (s < 60) {
-    return `${s}s ago`;
-  }
-  const m = Math.floor(s / 60);
-  if (m < 60) {
-    return `${m}m ago`;
-  }
-  const h = Math.floor(m / 60);
-  if (h < 24) {
-    return `${h}h ago`;
-  }
-  const d = Math.floor(h / 24);
-  return `${d}d ago`;
+  return getTimeAgo(new Date(ts));
 };
 
-// Pick branch/ref from known providers
 const getBranch = (d: Deployment) =>
   d.meta?.githubCommitRef ||
   d.meta?.gitlabCommitRef ||
@@ -37,7 +21,6 @@ const getBranch = (d: Deployment) =>
   d.meta?.branch ||
   '';
 
-// Commit short sha
 const getCommit = (d: Deployment) => {
   const sha =
     d.meta?.githubCommitSha ||
@@ -48,7 +31,6 @@ const getCommit = (d: Deployment) => {
   return sha ? sha.slice(0, 7) : '';
 };
 
-// Color by status (readyState preferred)
 const getStatusInfo = (d: Deployment) => {
   const state = d.readyState || d.state || 'UNKNOWN';
   let fg = '#cccccc';
@@ -66,14 +48,13 @@ const getStatusInfo = (d: Deployment) => {
   return { label: state, fg } as const;
 };
 
-// Truncate and pad helpers for simple table columns
 const truncate = (str: string, len: number) =>
   str.length > len ? `${str.slice(0, Math.max(0, len - 1))}…` : str;
 
 type Column = { label: string; width?: number; flex?: number };
 
 const columns: Array<Column> = [
-  { label: 'Time', width: 10 },
+  { label: 'Time', width: 12 },
   { label: 'Status', width: 12 },
   { label: 'Target', width: 10 },
   { label: 'URL', flex: 1 },
@@ -82,8 +63,14 @@ const columns: Array<Column> = [
 ];
 
 export const DeploymentsList = ({ deployments, project }: Props) => {
-  const [timeCol, statusCol, targetCol, urlCol, branchCol, commitCol] =
-    columns as [Column, Column, Column, Column, Column, Column];
+  const [timeCol, statusCol, targetCol, , branchCol, commitCol] = columns as [
+    Column,
+    Column,
+    Column,
+    Column,
+    Column,
+    Column,
+  ];
   const sorted = [...deployments].sort(
     (a, b) => getCreatedAt(b) - getCreatedAt(a),
   );
