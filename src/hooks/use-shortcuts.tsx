@@ -4,12 +4,17 @@ import type { CliRenderer } from '@opentui/core';
 
 type Props = {
   renderer?: CliRenderer;
+  enabled?: boolean;
 };
 
-export const useShortcuts = ({ renderer }: Props) => {
+export const useShortcuts = ({ renderer, enabled = true }: Props) => {
   const [showHelp, setShowHelp] = useState(false);
 
   useKeyboard(key => {
+    if (!enabled) {
+      return;
+    }
+
     if (key.name === '?') {
       setShowHelp(prev => !prev);
       return;

@@ -38,7 +38,7 @@ const renderer = await createCliRenderer({
 
 function App() {
   const [isConfigured, setIsConfigured] = useState(hasConfig());
-  const { showHelp } = useShortcuts({ renderer });
+  const { showHelp } = useShortcuts({ renderer, enabled: isConfigured });
 
   if (!isConfigured) {
     return (
