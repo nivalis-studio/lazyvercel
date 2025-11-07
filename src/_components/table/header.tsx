@@ -13,7 +13,7 @@ export const TableHeader = ({ bodyPaddingLeft, bodyPaddingRight }: Props) => {
       paddingLeft={bodyPaddingLeft}
       paddingRight={bodyPaddingRight}
       style={{
-        backgroundColor: '#1f2335',
+        backgroundColor: theme.defs.darkCrust,
         border: ['bottom'],
         borderColor: theme.defs.darkSurface0,
         flexShrink: 0,
@@ -23,8 +23,14 @@ export const TableHeader = ({ bodyPaddingLeft, bodyPaddingRight }: Props) => {
     >
       <box flexDirection='row' gap={2}>
         {columns.map(col => (
-          <box key={col.label} style={getColumnStyle(col)}>
-            <text attributes={TextAttributes.DIM}>{col.label}</text>
+          <box
+            key={col.label}
+            style={{
+              ...getColumnStyle(col),
+              paddingTop: 1,
+            }}
+          >
+            <text attributes={TextAttributes.BOLD}>{col.label}</text>
           </box>
         ))}
       </box>
