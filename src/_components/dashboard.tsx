@@ -28,7 +28,10 @@ export const Dashboard = ({
   currentBranch,
   ...rest
 }: Props) => {
-  const { hasFailed: hasFailedProject, project } = useProject({ projectId });
+  const { hasFailed: hasFailedProject, project } = useProject({
+    teamId,
+    projectId,
+  });
   const {
     hasFailed: hasFailedDeployments,
     deployments,

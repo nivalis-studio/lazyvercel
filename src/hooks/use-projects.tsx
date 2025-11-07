@@ -1,43 +1,59 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getConfig } from '@/lib/config';
-import type { Project } from '@/types/vercel-sdk';
+import type { Project, Projects } from '@/types/vercel-sdk';
 
 type Props = {
+  teamId: string;
   projectId: string;
 };
 
-export const useProject = ({ projectId }: Props) => {
+const MAX_PROJECTS = 150;
+
+export const useProjects = ({ teamId }: { teamId: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasFailed, setHasFailed] = useState(false);
-  const [project, setProject] = useState<Project>();
+  const [projects, setProjects] = useState<Projects>([]);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      const config = getConfig();
-      if (!config?.bearerToken) {
-        throw new Error('Bearer token not configured');
-      }
+  const fetchProjects = useCallback(async () => {
+    const config = getConfig();
+    if (!config?.bearerToken) {
+      throw new Error('Bearer token not configured');
+    }
+    const url = 'https://api.vercel.com/v10/projects';
 
-      const url = `https://api.vercel.com/v9/projects/${projectId}`;
-      const options = {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${config.bearerToken}` },
-        body: undefined,
-      };
+    const searchParams = new URLSearchParams({
+      teamId,
+      limit: MAX_PROJECTS.toString(),
+    });
 
-      const response = await fetch(url, options);
-      const data = (await response.json()) as Project;
-      setProject(data);
-      setIsLoading(false);
-      setHasFailed(false);
+    const options = {
+      method: 'GET',
+      headers: { Authorization: 'Bearer IvVbJk3kr093EKVc9khegVvE' },
+      body: undefined,
     };
 
-    fetchProject().catch(error => {
-      console.error(error);
-      setIsLoading(false);
-      setHasFailed(true);
-    });
-  }, [projectId]);
+    const full = `${url}?${searchParams.toString()}`;
 
-  return { isLoading, project, hasFailed };
+    const response = await fetch(full, options);
+    const data = (await response.json()) as { projects: Array<Project> };
+    setProjects(data.projects);
+    setIsLoading(false);
+    setHasFailed(false);
+  }, [teamId]);
+
+  useEffect(() => {
+    fetchProjects().catch(() => {
+      /* */
+    });
+  }, [fetchProjects]);
+
+  return { isLoading, projects, hasFailed, refresh: fetchProjects };
+};
+
+export const useProject = ({ projectId, teamId }: Props) => {
+  const { isLoading, projects, hasFailed, refresh } = useProjects({ teamId });
+
+  const project = projects.find(prject => prject.id === projectId);
+
+  return { isLoading, project, hasFailed, refresh };
 };
