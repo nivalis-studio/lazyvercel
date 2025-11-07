@@ -14,14 +14,19 @@ A beautiful Terminal User Interface (TUI) for managing Vercel deployments, built
 ## Installation
 
 ```bash
-# Using npm
-npm install -g @nivalis/vercel-tui
+bunx @nivalis/vercel-tui
+```
 
-# Using bun
-bun add -g @nivalis/vercel-tui
+Or install globally with bun:
 
-# Using npx (no installation)
-npx @nivalis/vercel-tui
+```bash
+bun install -g @nivalis/vercel-tui
+```
+
+And run with
+
+```bash
+vercel-tui
 ```
 
 ## Setup
@@ -33,7 +38,7 @@ On first run, you'll be prompted to configure your Vercel API token:
 3. Give it a name (e.g., "Vercel TUI")
 4. Select appropriate scopes (read access to projects and deployments)
 5. Copy the generated token
-6. Paste it into the setup screen
+6. Paste it into the setup (needs bun >= 1.3.0)
 
 The token will be securely stored in `~/.config/vercel-tui/config.json`.
 
@@ -44,13 +49,7 @@ For more information about Vercel API authentication, see the [official document
 Run the TUI from any Vercel project directory:
 
 ```bash
-vercel-tui
-```
-
-Or use npx:
-
-```bash
-npx @nivalis/vercel-tui
+bunx @nivalis/vercel-tui
 ```
 
 The TUI will automatically detect your project from the `.vercel/project.json` file.
