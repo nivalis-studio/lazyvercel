@@ -14,19 +14,19 @@ A beautiful Terminal User Interface (TUI) for managing Vercel deployments, built
 ## Installation
 
 ```bash
-bunx @nivalis/vercel-tui
+bunx @nivalis/lazyvercel
 ```
 
 Or install globally with bun:
 
 ```bash
-bun install -g @nivalis/vercel-tui
+bun install -g @nivalis/lazyvercel
 ```
 
 And run with
 
 ```bash
-vercel-tui
+lazyvercel
 ```
 
 ## Setup
@@ -40,7 +40,7 @@ On first run, you'll be prompted to configure your Vercel API token:
 5. Copy the generated token
 6. Paste it into the setup (needs bun >= 1.3.0)
 
-The token will be securely stored in `~/.config/vercel-tui/config.json`.
+The token will be securely stored in `~/.config/lazyvercel/config.json`.
 
 For more information about Vercel API authentication, see the [official documentation](https://vercel.com/docs/rest-api/reference/welcome#authentication).
 
@@ -49,7 +49,7 @@ For more information about Vercel API authentication, see the [official document
 Run the TUI from any Vercel project directory:
 
 ```bash
-bunx @nivalis/vercel-tui
+bunx @nivalis/lazyvercel
 ```
 
 The TUI will automatically detect your project from the `.vercel/project.json` file.
@@ -80,8 +80,8 @@ The TUI will automatically detect your project from the `.vercel/project.json` f
 
 ```bash
 # Clone the repository
-git clone https://github.com/nivalis/vercel-tui.git
-cd vercel-tui
+git clone https://github.com/nivalis/lazyvercel.git
+cd lazyvercel
 
 # Install dependencies
 bun install

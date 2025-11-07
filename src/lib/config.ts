@@ -6,7 +6,7 @@ type Config = {
   bearerToken: string;
 };
 
-const CONFIG_DIR = path.join(os.homedir(), '.config', 'vercel-tui');
+const CONFIG_DIR = path.join(os.homedir(), '.config', 'lazyvercel');
 const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 
 export const getConfig = (): Config | null => {

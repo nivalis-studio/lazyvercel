@@ -108,7 +108,7 @@ export const Setup = ({ onComplete }: Props) => {
               Press ESC when done (token auto-saves) | Ctrl+C to quit
             </text>
             <text attributes={TextAttributes.DIM}>
-              Token will be saved to: ~/.config/vercel-tui/config.json
+              Token will be saved to: ~/.config/lazyvercel/config.json
             </text>
           </box>
         </box>

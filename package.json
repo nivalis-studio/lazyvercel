@@ -1,11 +1,11 @@
 {
-	"name": "@nivalis/vercel-tui",
+	"name": "@nivalis/lazyvercel",
 	"type": "module",
 	"version": "0.4.0",
 	"description": "Terminal UI for managing Vercel deployments",
 	"private": false,
 	"bin": {
-		"vercel-tui": "dist/index.js"
+		"lazyvercel": "dist/index.js"
 	},
 	"files": ["dist"],
 	"engines": {
@@ -17,12 +17,12 @@
 	"keywords": ["vercel", "tui", "terminal", "deployments", "cli"],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nivalis/vercel-tui.git"
+		"url": "git+https://github.com/nivalis/lazyvercel.git"
 	},
 	"bugs": {
-		"url": "https://github.com/nivalis/vercel-tui/issues"
+		"url": "https://github.com/nivalis/lazyvercel/issues"
 	},
-	"homepage": "https://github.com/nivalis/vercel-tui#readme",
+	"homepage": "https://github.com/nivalis/lazyvercel#readme",
 	"packageManager": "bun@1.3.1",
 	"scripts": {
 		"dev": "bun run --watch src/index.tsx",
