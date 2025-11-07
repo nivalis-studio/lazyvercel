@@ -40,14 +40,23 @@ export const DeploymentsList = ({
   setViewingDeployment,
 }: Props) => {
   const branches = useMemo(() => {
-    const branchSet = new Set<string>();
-    for (const d of deployments) {
-      const branch = getBranch(d);
-      if (branch) {
-        branchSet.add(branch);
+    const latestByBranch = new Map<string, number>();
+    for (const deployment of deployments) {
+      const branch = getBranch(deployment);
+      if (!branch) {
+        continue;
+      }
+      const createdAt = getCreatedAt(deployment);
+      const latest = latestByBranch.get(branch);
+      if (!latest || createdAt > latest) {
+        latestByBranch.set(branch, createdAt);
       }
     }
-    return ['All', ...Array.from(branchSet).sort()];
+    const sortedBranches = Array.from(latestByBranch.entries()).sort(
+      ([branchA, createdA], [branchB, createdB]) =>
+        createdB - createdA || branchA.localeCompare(branchB),
+    );
+    return ['All', ...sortedBranches.map(([branch]) => branch)];
   }, [deployments]);
 
   const asciiBoxWidth = Math.max(project.name.length * 4, 24);

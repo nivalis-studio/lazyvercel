@@ -3,18 +3,20 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createCliRenderer } from '@opentui/core';
 import { createRoot } from '@opentui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dashboard } from '@/_components/dashboard';
 import { HelpPanel } from '@/_components/help';
 import {
   MissingProjectId,
   MissingProjectPath,
 } from '@/_components/missing-project';
+import { ProjectSwitcher } from '@/_components/project-switcher';
 import { Setup } from '@/_components/setup';
 import { useShortcuts } from '@/hooks/use-shortcuts';
 import { hasConfig } from '@/lib/config';
 import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import { resetVercelInstance } from '@/vercel';
+import type { ReactNode } from 'react';
 import type { Deployment } from '@/types/vercel-sdk';
 
 const PROJECT_CONFIG_PATH = '.vercel/project.json';
@@ -76,7 +78,7 @@ const getCurrentBranch = (): string | undefined => {
 const currentBranch = getCurrentBranch();
 
 const renderer = await createCliRenderer({
-  backgroundColor: theme.defs.darkBase,
+  backgroundColor: theme.defs.darkCrust,
 });
 
 function App() {
@@ -87,8 +89,22 @@ function App() {
     Deployment | undefined
   >(undefined);
   const [isConfigured, setIsConfigured] = useState(hasConfig());
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const { state: projectConfig, refresh: refreshProject } = useProjectConfig();
-  const { showHelp } = useShortcuts({ renderer, enabled: isConfigured });
+  const { showHelp, showProjectPicker, setShowProjectPicker } = useShortcuts({
+    renderer,
+    enabled: isConfigured,
+  });
+  const isProjectConfigReady = projectConfig.status === 'ready';
+
+  useEffect(() => {
+    if (!isProjectConfigReady) {
+      setActiveProjectId(null);
+      if (showProjectPicker) {
+        setShowProjectPicker(false);
+      }
+    }
+  }, [isProjectConfigReady, showProjectPicker, setShowProjectPicker]);
 
   if (!isConfigured) {
     return (
@@ -102,33 +118,68 @@ function App() {
     );
   }
 
+  const resolvedProjectId = isProjectConfigReady
+    ? (activeProjectId ?? projectConfig.projectId)
+    : undefined;
+
+  const handleProjectSelect = (projectId: string) => {
+    setActiveProjectId(projectId);
+    setSelectedBranchIndex(0);
+    setSelectedDeploymentIndex(0);
+    setViewingDeployment(undefined);
+  };
+
+  let content: ReactNode = null;
+
   if (showHelp) {
-    return <HelpPanel />;
+    content = <HelpPanel />;
+  } else {
+    switch (projectConfig.status) {
+      case 'missing_path':
+        content = <MissingProjectPath />;
+        break;
+      case 'missing_id':
+      case 'error':
+        content = <MissingProjectId />;
+        break;
+      case 'ready':
+        content = (
+          <Dashboard
+            currentBranch={currentBranch}
+            projectId={resolvedProjectId ?? projectConfig.projectId}
+            selectedBranchIndex={selectedBranchIndex}
+            selectedDeploymentIndex={selectedDeploymentIndex}
+            setSelectedBranchIndex={setSelectedBranchIndex}
+            setSelectedDeploymentIndex={setSelectedDeploymentIndex}
+            setViewingDeployment={setViewingDeployment}
+            teamId={projectConfig.teamId}
+            viewingDeployment={viewingDeployment}
+          />
+        );
+        break;
+      default:
+        content = <MissingProjectPath />;
+        break;
+    }
   }
 
-  switch (projectConfig.status) {
-    case 'missing_path':
-      return <MissingProjectPath />;
-    case 'missing_id':
-    case 'error':
-      return <MissingProjectId />;
-    case 'ready':
-      return (
-        <Dashboard
-          currentBranch={currentBranch}
-          projectId={projectConfig.projectId}
-          selectedBranchIndex={selectedBranchIndex}
-          selectedDeploymentIndex={selectedDeploymentIndex}
-          setSelectedBranchIndex={setSelectedBranchIndex}
-          setSelectedDeploymentIndex={setSelectedDeploymentIndex}
-          setViewingDeployment={setViewingDeployment}
+  return (
+    <box
+      flexDirection='column'
+      flexGrow={1}
+      style={{ position: 'relative', minHeight: 0 }}
+    >
+      {content}
+      {showProjectPicker && isProjectConfigReady && resolvedProjectId ? (
+        <ProjectSwitcher
+          currentProjectId={resolvedProjectId}
+          onClose={() => setShowProjectPicker(false)}
+          onSelect={project => handleProjectSelect(project.id)}
           teamId={projectConfig.teamId}
-          viewingDeployment={viewingDeployment}
         />
-      );
-    default:
-      return <MissingProjectPath />;
-  }
+      ) : null}
+    </box>
+  );
 }
 
 createRoot(renderer).render(<App />);

@@ -9,9 +9,28 @@ type Props = {
 
 export const useShortcuts = ({ renderer, enabled = true }: Props) => {
   const [showHelp, setShowHelp] = useState(false);
+  const [showProjectPicker, setShowProjectPicker] = useState(false);
 
   useKeyboard(key => {
     if (!enabled) {
+      return;
+    }
+
+    const isProjectPickerShortcut =
+      (key.meta || key.super || key.ctrl) && key.name === 'p';
+
+    if (isProjectPickerShortcut) {
+      setShowProjectPicker(prev => !prev);
+      return;
+    }
+
+    if (showProjectPicker) {
+      if (key.name === 'escape' || key.name === 'backspace') {
+        setShowProjectPicker(false);
+        return;
+      }
+
+      // Block other global shortcuts while picker is visible.
       return;
     }
 
@@ -37,5 +56,7 @@ export const useShortcuts = ({ renderer, enabled = true }: Props) => {
   return {
     showHelp,
     setShowHelp,
+    showProjectPicker,
+    setShowProjectPicker,
   };
 };

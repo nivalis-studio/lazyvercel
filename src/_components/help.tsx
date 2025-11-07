@@ -20,6 +20,9 @@ export function HelpPanel() {
             <text attributes={TextAttributes.BOLD}>Global Shortcuts</text>
             <text attributes={TextAttributes.DIM}>? Show this help</text>
             <text attributes={TextAttributes.DIM}>
+              Cmd+P / Ctrl+P Switch project
+            </text>
+            <text attributes={TextAttributes.DIM}>
               Q / ESC Quit application
             </text>
             <text attributes={TextAttributes.DIM}>Ctrl+K Toggle console</text>
