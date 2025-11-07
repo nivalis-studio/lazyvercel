@@ -1,7 +1,9 @@
+/** biome-ignore-all lint/style/noMagicNumbers: yay */
 import { TextAttributes } from '@opentui/core';
 import { useKeyboard } from '@opentui/react';
 import { useState } from 'react';
 import { getTimeAgo } from '@/lib/time-ago';
+import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import type { Deployment, Deployments, Project } from '@/types/vercel-sdk';
 
 type Props = {
@@ -35,17 +37,17 @@ const getCommit = (d: Deployment) => {
 
 const getStatusInfo = (d: Deployment) => {
   const state = d.readyState || d.state || 'UNKNOWN';
-  let fg = '#cccccc';
+  let fg = theme.defs.darkOverlay2;
   if (state === 'READY') {
-    fg = 'green';
+    fg = theme.defs.darkGreen;
   } else if (
     state === 'BUILDING' ||
     state === 'INITIALIZING' ||
     state === 'QUEUED'
   ) {
-    fg = 'yellow';
+    fg = theme.defs.darkYellow;
   } else if (state === 'ERROR' || state === 'CANCELED' || state === 'DELETED') {
-    fg = 'red';
+    fg = theme.defs.darkRed;
   }
   return { label: state, fg } as const;
 };

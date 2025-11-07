@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: yay */
 function is(interval: number, cycle: number) {
   return cycle >= interval ? Math.floor(cycle / interval) : 0;
 }

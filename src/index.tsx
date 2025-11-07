@@ -5,13 +5,16 @@ import {
   MissingProjectId,
   MissingProjectPath,
 } from '@/_components/missing-project';
+import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import { Dashboard } from './_components/dashboard';
 
 const projectPath = fs.existsSync('.vercel/project.json')
   ? '.vercel/project.json'
   : null;
 
-const renderer = await createCliRenderer();
+const renderer = await createCliRenderer({
+  backgroundColor: theme.defs.darkBase,
+});
 
 function App() {
   useKeyboard(key => {
