@@ -1,6 +1,7 @@
 import { TextAttributes } from '@opentui/core';
 import { useState } from 'react';
 import { saveConfig } from '@/lib/config';
+import { THEME } from '@/theme';
 
 type Props = {
   onComplete: () => void;
@@ -66,10 +67,9 @@ export const Setup = ({ onComplete }: Props) => {
             </text>
             <box
               border
-              marginTop={1}
-              paddingLeft={1}
-              paddingRight={1}
-              style={{ backgroundColor: '#1f2335' }}
+              padding={1}
+              paddingTop={0}
+              style={{ backgroundColor: THEME.defs.darkBase }}
             >
               <input
                 focused
