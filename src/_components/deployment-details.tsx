@@ -140,8 +140,42 @@ export const DeploymentDetails = ({ deployment, project, teamId }: Props) => {
           </box>
         </box>
 
-        <box border flexDirection='column' flexGrow={1} title='Build Logs'>
-          <box flexDirection='column' padding={1}>
+        <box
+          border
+          flexDirection='column'
+          flexGrow={1}
+          style={{ minHeight: 0 }}
+          title='Build Logs'
+        >
+          <scrollbox
+            style={{
+              rootOptions: {
+                flexGrow: 1,
+                minHeight: 0,
+                height: '100%',
+              },
+              wrapperOptions: {
+                minHeight: 0,
+                height: '100%',
+              },
+              viewportOptions: {
+                minHeight: 0,
+                height: '100%',
+              },
+              contentOptions: {
+                flexDirection: 'column',
+                gap: 0,
+                padding: 1,
+              },
+              scrollbarOptions: {
+                showArrows: true,
+                trackOptions: {
+                  foregroundColor: theme.defs.darkBlue,
+                  backgroundColor: theme.defs.darkSurface0,
+                },
+              },
+            }}
+          >
             {isLoadingLogs && (
               <text attributes={TextAttributes.DIM}>Loading logs...</text>
             )}
@@ -171,7 +205,7 @@ export const DeploymentDetails = ({ deployment, project, teamId }: Props) => {
                   </box>
                 );
               })}
-          </box>
+          </scrollbox>
         </box>
       </box>
     </box>
