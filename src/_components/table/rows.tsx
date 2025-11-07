@@ -20,6 +20,9 @@ const formatRelativeTime = (ts: number) => getTimeAgo(new Date(ts));
 const truncate = (str: string, len: number) =>
   str.length > len ? `${str.slice(0, Math.max(0, len - 1))}…` : str;
 
+const MAX_URL_LENGTH = 55;
+const MAX_BRANCH_LENGTH = 30;
+
 type Props = {
   bodyPaddingLeft: number;
   bodyPaddingRight: number;
@@ -63,6 +66,7 @@ export const TableRows = ({
     });
   }, [sorted.length, setSelectedDeploymentIndex]);
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: yay
   useEffect(() => {
     const scrollbox = scrollboxRef.current;
     if (!scrollbox) {
@@ -211,12 +215,14 @@ export const TableRows = ({
 
               {/* URL */}
               <box style={getColumnStyle(urlCol)}>
-                <text>{truncate(d.url, 48)}</text>
+                <text>{truncate(d.url, urlCol.width ?? MAX_URL_LENGTH)}</text>
               </box>
 
               {/* Branch */}
               <box style={getColumnStyle(branchCol)}>
-                <text>{truncate(branch, branchCol.width ?? 18)}</text>
+                <text>
+                  {truncate(branch, branchCol.width ?? MAX_BRANCH_LENGTH)}
+                </text>
               </box>
 
               {/* Commit */}

@@ -1,7 +1,7 @@
 import { TextAttributes } from '@opentui/core';
 import open from 'open';
 import { useEffect, useState } from 'react';
-import { useDeploymentDetailsShortcuts } from '@/hooks/use-deployment-details-shortcuts';
+import { useDeploymentDetailsShortcuts } from '@/hooks/use-deployment-shortcuts';
 import {
   getBranch,
   getCommit,

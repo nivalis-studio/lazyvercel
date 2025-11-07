@@ -4,8 +4,8 @@ export const columns: Array<Column> = [
   { label: 'Time', width: 12 },
   { label: 'Status', width: 12 },
   { label: 'Target', width: 10 },
-  { label: 'URL', flex: 1 },
-  { label: 'Branch', width: 18 },
+  { label: 'URL', width: 40 },
+  { label: 'Branch', width: 22 },
   { label: 'Commit', width: 8 },
 ] as const;
 

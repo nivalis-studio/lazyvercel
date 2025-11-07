@@ -3,7 +3,7 @@
 import { type ScrollBoxRenderable, TextAttributes } from '@opentui/core';
 import open from 'open';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDeploymentsShortcuts } from '@/hooks/use-deployment-details-shortcuts';
+import { useDeploymentsShortcuts } from '@/hooks/use-deployment-shortcuts';
 import { getBranch, getCreatedAt } from '@/lib/extract-deploy-details';
 import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import { DeploymentDetails } from './deployment-details';
