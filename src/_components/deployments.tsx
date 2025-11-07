@@ -1,4 +1,6 @@
 import { TextAttributes } from '@opentui/core';
+import { useKeyboard } from '@opentui/react';
+import { useState } from 'react';
 import { getTimeAgo } from '@/lib/time-ago';
 import type { Deployment, Deployments, Project } from '@/types/vercel-sdk';
 
@@ -75,6 +77,16 @@ export const DeploymentsList = ({ deployments, project }: Props) => {
     (a, b) => getCreatedAt(b) - getCreatedAt(a),
   );
 
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useKeyboard(key => {
+    if (key.name === 'up') {
+      setSelectedIndex(prev => Math.max(0, prev - 1));
+    } else if (key.name === 'down') {
+      setSelectedIndex(prev => Math.min(sorted.length - 1, prev + 1));
+    }
+  });
+
   return (
     <box flexDirection='column' flexGrow={1} padding={1}>
       <box alignItems='flex-end' justifyContent='flex-start' marginBottom={1}>
@@ -102,14 +114,22 @@ export const DeploymentsList = ({ deployments, project }: Props) => {
 
         {/* Rows */}
         <box flexDirection='column' gap={0} paddingLeft={1} paddingRight={1}>
-          {sorted.map(d => {
+          {sorted.map((d, index) => {
             const createdAt = getCreatedAt(d);
             const status = getStatusInfo(d);
             const branch = getBranch(d);
             const commit = getCommit(d);
+            const isSelected = index === selectedIndex;
 
             return (
-              <box flexDirection='row' gap={2} key={d.uid}>
+              <box
+                flexDirection='row'
+                gap={2}
+                key={d.uid}
+                style={{
+                  backgroundColor: isSelected ? '#2e3440' : undefined,
+                }}
+              >
                 {/* Time */}
                 <box style={{ width: timeCol.width }}>
                   <text attributes={TextAttributes.DIM}>
