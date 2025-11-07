@@ -13,8 +13,12 @@ export const useDeploymentDetailsShortcuts = ({
   useKeyboard(key => {
     if (key.name === 'backspace') {
       onBack();
-    } else if (key.name === 'o') {
+      return;
+    }
+
+    if (key.name === 'o') {
       onOpenBrowser();
+      return;
     }
   });
 };
