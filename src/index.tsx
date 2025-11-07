@@ -36,8 +36,8 @@ function App() {
       renderer?.console.toggle();
     }
 
-    if (key.name === 'escape') {
-      renderer?.destroy();
+    if (key.name === 'escape' || key.name === 'q') {
+      process.exit(0);
     }
   });
 
