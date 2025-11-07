@@ -1,6 +1,5 @@
 import { TextAttributes } from '@opentui/core';
-import { useKeyboard } from '@opentui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { saveConfig } from '@/lib/config';
 
 type Props = {
@@ -9,41 +8,23 @@ type Props = {
 
 export const Setup = ({ onComplete }: Props) => {
   const [error, setError] = useState('');
-  // biome-ignore lint/suspicious/noExplicitAny: Okayish
-  const textareaRef = useRef<any>(null);
+  const [value, setValue] = useState('');
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, []);
+  const handleSave = (token_: string) => {
+    const token = token_.trim();
 
-  const handleSave = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) {
-      return;
-    }
-
-    const token =
-      textarea.editBuffer?.getText?.() || textarea.getText?.() || '';
-    if (token.trim().length === 0) {
+    if (token.length === 0) {
       setError('Token cannot be empty');
       return;
     }
 
     try {
-      saveConfig({ bearerToken: token.trim() });
+      saveConfig({ bearerToken: token });
       onComplete();
     } catch {
       setError('Failed to save configuration');
     }
   };
-
-  useKeyboard(key => {
-    if (key.name === 'escape') {
-      handleSave();
-    }
-  });
 
   return (
     <box flexDirection='column' flexGrow={1} padding={1}>
@@ -90,9 +71,15 @@ export const Setup = ({ onComplete }: Props) => {
               paddingRight={1}
               style={{ backgroundColor: '#1f2335' }}
             >
-              <textarea
+              <input
+                focused
+                onInput={setValue}
+                onPaste={event => {
+                  setValue(event.text);
+                }}
+                onSubmit={handleSave}
                 placeholder='Paste your Vercel token here...'
-                ref={textareaRef}
+                value={value}
               />
             </box>
           </box>
@@ -105,7 +92,7 @@ export const Setup = ({ onComplete }: Props) => {
 
           <box flexDirection='column' marginTop={2}>
             <text attributes={TextAttributes.DIM}>
-              Press ESC when done (token auto-saves) | Ctrl+C to quit
+              Press Enter when done (token auto-saves) | Ctrl+C to quit
             </text>
             <text attributes={TextAttributes.DIM}>
               Token will be saved to: ~/.config/lazyvercel/config.json
