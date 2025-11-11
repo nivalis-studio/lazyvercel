@@ -1,7 +1,7 @@
 import { useDeployments } from '@/hooks/use-deployments';
 import { useProject } from '@/hooks/use-projects';
 import { DeploymentsList } from './deployments';
-import { LoadingState } from './loading';
+import { Loading } from './loading';
 import {
   LoadingDeploymentsError,
   LoadingProjectError,
@@ -50,7 +50,7 @@ export const Dashboard = ({
   }
 
   if (!(deployments && project)) {
-    return <LoadingState project={project} />;
+    return <Loading />;
   }
 
   return (

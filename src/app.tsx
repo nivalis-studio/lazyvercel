@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { Loading } from './_components/loading';
 import { getProjectConfig, type ProjectConfig } from './lib/config';
 import { fetchProjects as fetchProjects_ } from './lib/projects';
 import type { Project, Projects } from './types/vercel-sdk';
@@ -28,7 +29,7 @@ export const ConfiguredApp = () => {
   const [content, setContent] = useState<ReactNode>(null);
   const [modal, setModal] = useState<ReactNode>(null);
   const [projectId, setProjectId] = useState(config.projectId);
-  const [projects, setProjects] = useState<Projects>([]);
+  const [projects, setProjects] = useState<Projects | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchProjects = useCallback(async () => {
@@ -44,6 +45,14 @@ export const ConfiguredApp = () => {
 
   if (error) {
     throw error;
+  }
+
+  if (projects === null) {
+    return <Loading label='Loading projets...' />;
+  }
+
+  if (!projects.length) {
+    throw new Error('No projects found for this config');
   }
 
   const project = projects.find(p => p.id === projectId);
