@@ -6,8 +6,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { getConfig, getProjectConfig, type ProjectConfig } from './lib/config';
-import { getToken } from './vercel';
+import { getProjectConfig, type ProjectConfig } from './lib/config';
+import { fetchProjects as fetchProjects_ } from './lib/projects';
 import type { Project, Projects } from './types/vercel-sdk';
 
 type Ctx = {
@@ -23,8 +23,6 @@ type Ctx = {
 
 const ctx = createContext<Ctx | null>(null);
 
-const MAX_PROJECTS = 150;
-
 export const ConfiguredApp = () => {
   const config = getProjectConfig();
   const [content, setContent] = useState<ReactNode>(null);
@@ -34,33 +32,9 @@ export const ConfiguredApp = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const fetchProjects = useCallback(async () => {
-    const globalConfig = getConfig();
-    if (!globalConfig?.bearerToken) {
-      throw new Error('Bearer token not configured');
-    }
-
-    const url = 'https://api.vercel.com/v10/projects';
-    const searchParams = new URLSearchParams({
-      teamId: config.teamId,
-      limit: MAX_PROJECTS.toString(),
-    });
-
-    const options = {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${getToken()}` },
-      body: undefined,
-    };
-
-    const full = `${url}?${searchParams.toString()}`;
-    const response = await fetch(full, options);
-
-    if (!response.ok) {
-      const cause = await response.json();
-      throw new Error('Failed to fetch projects', { cause });
-    }
-    const data = (await response.json()) as { projects: Array<Project> };
-    setProjects(data.projects);
-  }, [config.teamId]);
+    const projects_ = await fetchProjects_(config);
+    setProjects(projects_);
+  }, [config]);
 
   useEffect(() => {
     fetchProjects().catch(err => {
