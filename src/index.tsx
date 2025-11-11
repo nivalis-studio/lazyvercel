@@ -28,9 +28,15 @@ const App_ = () => {
   }
 
   return (
-    <ErrorBoundary>
-      <ConfiguredApp />
-    </ErrorBoundary>
+    <box
+      flexDirection='column'
+      flexGrow={1}
+      style={{ position: 'relative', minHeight: 0 }}
+    >
+      <ErrorBoundary>
+        <ConfiguredApp />
+      </ErrorBoundary>
+    </box>
   );
 };
 

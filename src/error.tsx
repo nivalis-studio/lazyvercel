@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { THEME } from './theme';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -27,9 +28,39 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       console.error(this.state.error?.stack);
       return (
-        <box style={{ padding: 2 }}>
-          <text content={`${this.state.error?.message || 'Unknown error'}`} />
-          <text content={`${this.state.error?.cause || ''}`} />
+        <box
+          flexDirection='column'
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            backgroundColor: THEME.defs.darkCrust,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <box
+            border
+            borderColor={THEME.defs.darkRed}
+            flexDirection='column'
+            gap={1}
+            padding={1}
+            style={{
+              width: '70%',
+              maxWidth: 100,
+              height: 'auto',
+              backgroundColor: THEME.defs.darkCrust,
+            }}
+            title='Error'
+          >
+            <text
+              content={`${this.state.error?.message || 'Unknown error'}`}
+              fg={THEME.defs.darkRed}
+            />
+            <text content={`${this.state.error?.cause || ''}`} />
+          </box>
         </box>
       );
     }
