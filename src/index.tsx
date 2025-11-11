@@ -6,6 +6,7 @@ import { Setup } from '@/_components/setup';
 import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import { ConfiguredApp } from './app';
 import { ErrorBoundary } from './error';
+import { ExitProvider } from './exit';
 import { getConfig } from './lib/config';
 import { resetVercelInstance } from './vercel';
 
@@ -33,9 +34,11 @@ const App_ = () => {
       flexGrow={1}
       style={{ position: 'relative', minHeight: 0 }}
     >
-      <ErrorBoundary>
-        <ConfiguredApp />
-      </ErrorBoundary>
+      <ExitProvider>
+        <ErrorBoundary>
+          <ConfiguredApp />
+        </ErrorBoundary>
+      </ExitProvider>
     </box>
   );
 };

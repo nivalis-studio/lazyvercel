@@ -1,3 +1,4 @@
+import { TextAttributes } from '@opentui/core';
 import { Component, type ReactNode } from 'react';
 import { THEME } from './theme';
 
@@ -60,6 +61,7 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               fg={THEME.defs.darkRed}
             />
             <text content={`${this.state.error?.cause || ''}`} />
+            <text attributes={TextAttributes.DIM}>press q to quit</text>
           </box>
         </box>
       );
