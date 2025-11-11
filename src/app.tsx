@@ -52,10 +52,13 @@ export const ConfiguredApp = () => {
   }
 
   if (!projects.length) {
+    // TODO: maybe allow to create a project ?
     throw new Error('No projects found for this config');
   }
 
   const project = projects.find(p => p.id === projectId);
+
+  // TODO: if !project we should display project switcher to set one
 
   const ctx_: Ctx = {
     setContent,
