@@ -26,7 +26,7 @@ export const getCommit = (d: Deployment) => {
 export const getStatusInfo = (d: Deployment) => {
   const state = d.readyState || d.state || 'UNKNOWN';
   let fg = theme.defs.darkOverlay2;
-  let icon = '●';
+  let icon = '•';
 
   switch (state) {
     case 'READY':
