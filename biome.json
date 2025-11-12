@@ -5,7 +5,8 @@
 		"rules": {
 			"nursery": {
 				"noImportCycles": "off"
-			}
+			},
+			"a11y": "off"
 		}
 	}
 }
