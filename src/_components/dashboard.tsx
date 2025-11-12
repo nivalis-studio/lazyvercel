@@ -1,8 +1,8 @@
+import { DeploymentsList } from '@/_components/deployments';
+import { Loading } from '@/_components/loading';
+import { LoadingProjectError } from '@/_components/missing-project';
 import { useDeployments } from '@/hooks/use-deployments';
 import { useProject } from '@/hooks/use-projects';
-import { DeploymentsList } from './deployments';
-import { Loading } from './loading';
-import { LoadingProjectError } from './missing-project';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {

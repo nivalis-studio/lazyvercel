@@ -1,6 +1,6 @@
 import { TextAttributes } from '@opentui/core';
-import theme from '@/theme/catppuccin.json' with { type: 'json' };
-import { columns, getColumnStyle } from './columns';
+import { columns, getColumnStyle } from '@/_components/table/columns';
+import { useCtx } from '@/ctx';
 
 type Props = {
   bodyPaddingLeft: number;
@@ -8,14 +8,15 @@ type Props = {
 };
 
 export const TableHeader = ({ bodyPaddingLeft, bodyPaddingRight }: Props) => {
+  const { getColor } = useCtx();
   return (
     <box
       paddingLeft={bodyPaddingLeft}
       paddingRight={bodyPaddingRight}
       style={{
-        backgroundColor: theme.defs.darkCrust,
+        backgroundColor: getColor('background'),
+        borderColor: getColor('borderSubtle'),
         border: ['bottom'],
-        borderColor: theme.defs.darkSurface0,
         flexShrink: 0,
         height: 3,
         alignItems: 'center',

@@ -1,6 +1,6 @@
 import { useKeyboard } from '@opentui/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { THEME } from '@/theme';
+import { useCtx } from '@/ctx';
 import type { BoxOptions, ScrollBoxRenderable } from '@opentui/core';
 
 export type ScrollSelectProps = {
@@ -17,6 +17,7 @@ export const ScrollSelect = ({
   onSelect,
   ...props
 }: ScrollSelectProps) => {
+  const { getColor } = useCtx();
   const scrollRef = useRef<ScrollBoxRenderable | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState(0);
 
@@ -67,7 +68,9 @@ export const ScrollSelect = ({
 
   return (
     <box
-      borderColor={focused ? THEME.defs.darkBlue : THEME.defs.darkSurface2}
+      borderColor={
+        focused ? getColor('borderActive') : getColor('borderSubtle')
+      }
       borderStyle='rounded'
       flexDirection='column'
       height='100%'
@@ -86,7 +89,9 @@ export const ScrollSelect = ({
 
           return (
             <box
-              backgroundColor={isHovered ? THEME.defs.darkSurface0 : undefined}
+              backgroundColor={
+                isHovered ? getColor('backgroundElement') : undefined
+              }
               // biome-ignore lint/suspicious/noArrayIndexKey: .
               key={idx}
               onMouseDown={() => onSelect(idx)}

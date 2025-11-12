@@ -1,24 +1,27 @@
 import { TextAttributes } from '@opentui/core';
 import { Component, type ReactNode } from 'react';
-import { THEME } from './theme';
+import { getThemeColor, type Theme } from '@/lib/colors';
+import themeJSON from '@/theme/catppuccin.json' with { type: 'json' };
 
 type ErrorBoundaryProps = {
   children: ReactNode;
+  theme: Theme;
 };
 
 type ErrorBoundaryState = {
   hasError: boolean;
   error?: Error;
+  theme: Theme;
 };
 
 class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, theme: props.theme };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error, theme: themeJSON };
   }
 
   override componentDidCatch(error: Error, errorInfo: unknown) {
@@ -26,6 +29,7 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   override render() {
+    const getColor = getThemeColor(this.state.theme);
     if (this.state.hasError) {
       console.error(this.state.error?.stack);
       return (
@@ -37,14 +41,14 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             right: 0,
             bottom: 0,
             left: 0,
-            backgroundColor: THEME.defs.darkCrust,
+            backgroundColor: getColor('background'),
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
           <box
             border
-            borderColor={THEME.defs.darkRed}
+            borderColor={getColor('borderActive')}
             flexDirection='column'
             gap={1}
             padding={1}
@@ -52,13 +56,13 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               width: '70%',
               maxWidth: 100,
               height: 'auto',
-              backgroundColor: THEME.defs.darkCrust,
+              backgroundColor: getColor('background'),
             }}
             title='Error'
           >
             <text
               content={`${this.state.error?.message || 'Unknown error'}`}
-              fg={THEME.defs.darkRed}
+              fg={getColor('error')}
             />
             <text content={`${this.state.error?.cause || ''}`} />
             <text attributes={TextAttributes.DIM}>press Q to quit</text>
@@ -71,6 +75,6 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-export const ErrorBoundary = ErrorBoundary_ as unknown as (props: {
-  children: ReactNode;
-}) => ReactNode;
+export const ErrorBoundary = ErrorBoundary_ as unknown as (
+  props: ErrorBoundaryProps,
+) => ReactNode;

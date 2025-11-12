@@ -1,11 +1,12 @@
 import { useKeyboard } from '@opentui/react';
 import { useMemo, useState } from 'react';
-import { useCtx } from '@/app';
+import { BranchList } from '@/_components/branch-list';
+import { DeploymentsList } from '@/_components/deployments-list';
+import { Loading } from '@/_components/loading';
+import { DEFAULT_BRANCH } from '@/constants';
+import { useCtx } from '@/ctx';
 import { useDeployments } from '@/hooks/use-deployments';
 import { getBranch, getCreatedAt } from '@/lib/extract-deploy-details';
-import { BranchList } from './branch-list';
-import { DeploymentsList } from './deployments-list';
-import { Loading } from './loading';
 import type { Deployment } from '@/types/vercel-sdk';
 
 const getBranchesList = (deployments: Array<Deployment>) => {
@@ -38,7 +39,7 @@ const getBranchesList = (deployments: Array<Deployment>) => {
   );
 
   // biome-ignore lint/style/noNonNullAssertion: .
-  return [['All', lastDeployment!], ...sortedBranches] as Array<
+  return [[DEFAULT_BRANCH, lastDeployment!], ...sortedBranches] as Array<
     [string, Deployment]
   >;
 };
@@ -46,7 +47,7 @@ const getBranchesList = (deployments: Array<Deployment>) => {
 export const ProjectDashboard = () => {
   const { project } = useCtx();
   const { isLoading, deployments } = useDeployments(project.id);
-  const [selectedBranch, setSelectedBranch] = useState<string>('All');
+  const [selectedBranch, setSelectedBranch] = useState<string>(DEFAULT_BRANCH);
   const [focused, setFocused] = useState(0);
 
   const branches = useMemo(() => {
@@ -73,7 +74,7 @@ export const ProjectDashboard = () => {
   }
 
   const filteredDeployments =
-    selectedBranch === 'All'
+    selectedBranch === DEFAULT_BRANCH
       ? deployments
       : deployments.filter(d => getBranch(d) === selectedBranch);
 

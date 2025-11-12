@@ -1,6 +1,7 @@
 import { TextAttributes } from '@opentui/core';
 import open from 'open';
 import { useEffect, useState } from 'react';
+import { useCtx } from '@/ctx';
 import { useDeploymentDetailsShortcuts } from '@/hooks/use-deployment-shortcuts';
 import {
   getBranch,
@@ -8,7 +9,6 @@ import {
   getCreatedAt,
   getStatusInfo,
 } from '@/lib/extract-deploy-details';
-import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import { getVercel } from '@/vercel';
 import type { Deployment, Project } from '@/types/vercel-sdk';
 
@@ -31,7 +31,8 @@ type LogEvent = {
 };
 
 export const DeploymentDetails = ({ deployment, project, teamId }: Props) => {
-  const status = getStatusInfo(deployment);
+  const { getColor, ...ctx } = useCtx();
+  const status = getStatusInfo(deployment, ctx._internal_theme);
   const branch = getBranch(deployment);
   const commit = getCommit(deployment);
   const createdAt = new Date(getCreatedAt(deployment));
@@ -170,8 +171,8 @@ export const DeploymentDetails = ({ deployment, project, teamId }: Props) => {
               scrollbarOptions: {
                 showArrows: true,
                 trackOptions: {
-                  foregroundColor: theme.defs.darkBlue,
-                  backgroundColor: theme.defs.darkSurface0,
+                  foregroundColor: getColor('primary'),
+                  backgroundColor: getColor('backgroundPanel'),
                 },
               },
             }}
@@ -189,12 +190,12 @@ export const DeploymentDetails = ({ deployment, project, teamId }: Props) => {
               buildLogs.map((log, index) => {
                 const logText = log.payload?.text || log.text || '';
                 const logType = log.type;
-                let fg = theme.defs.darkText;
+                let fg = getColor('primary');
 
                 if (logType === 'stderr') {
-                  fg = theme.defs.darkRed;
+                  fg = getColor('error');
                 } else if (logType === 'command') {
-                  fg = theme.defs.darkBlue;
+                  fg = getColor('info');
                 }
 
                 const logKey = `${log.created || 0}-${index}`;

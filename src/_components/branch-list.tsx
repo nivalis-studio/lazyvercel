@@ -1,8 +1,16 @@
+import { useKeyboard } from '@opentui/react';
+import open from 'open';
+import {
+  ScrollSelect,
+  type ScrollSelectProps,
+} from '@/_components/scroll-select';
+import { DEFAULT_BRANCH } from '@/constants';
+import { useCtx } from '@/ctx';
 import { getCreatedAt, getStatusInfo } from '@/lib/extract-deploy-details';
 import { getTimeAgo } from '@/lib/time-ago';
-import { THEME } from '@/theme';
-import { ScrollSelect, type ScrollSelectProps } from './scroll-select';
 import type { Deployment } from '@/types/vercel-sdk';
+
+const MAX_TIME_CHARS = 3;
 
 type Props = {
   branches: Array<[string, Deployment]>;
@@ -16,6 +24,24 @@ export const BranchList = ({
   onSelectBranch,
   ...props
 }: Props) => {
+  const { getColor, ...ctx } = useCtx();
+
+  useKeyboard(key => {
+    if (key.name === 'o') {
+      let url = `https://vercel.com/${ctx.teamId}/${ctx.project.name}/`;
+
+      if (selectedBranch && selectedBranch !== DEFAULT_BRANCH) {
+        url += `deployments?catchAll=deployments&filterBranch=${selectedBranch}`;
+      }
+
+      open(url).catch(error => {
+        console.error('Failed to open URL:', error);
+      });
+
+      return;
+    }
+  });
+
   return (
     <ScrollSelect
       {...props}
@@ -34,15 +60,15 @@ export const BranchList = ({
           short: true,
         });
 
-        const { icon, fg } = getStatusInfo(lastDeployment);
+        const { icon, fg } = getStatusInfo(lastDeployment, ctx._internal_theme);
 
         return (
           <box flexDirection='row' gap={1} key={branch} width='100%'>
             {isSelected ? (
               <text flexShrink={0}>{'  '}*</text>
             ) : (
-              <text fg={THEME.defs.darkTeal} flexShrink={0}>
-                {relativeTime.length < 3 && ' '}
+              <text fg={getColor('primary')} flexShrink={0}>
+                {relativeTime.length < MAX_TIME_CHARS && ' '}
                 {relativeTime}
               </text>
             )}

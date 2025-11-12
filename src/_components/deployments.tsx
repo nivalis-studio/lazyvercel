@@ -3,12 +3,13 @@
 import { type ScrollBoxRenderable, TextAttributes } from '@opentui/core';
 import open from 'open';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { DeploymentDetails } from '@/_components/deployment-details';
+import { TableHeader } from '@/_components/table/header';
+import { TableRows } from '@/_components/table/rows';
+import { DEFAULT_BRANCH } from '@/constants';
+import { useCtx } from '@/ctx';
 import { useDeploymentsShortcuts } from '@/hooks/use-deployment-shortcuts';
 import { getBranch, getCreatedAt } from '@/lib/extract-deploy-details';
-import theme from '@/theme/catppuccin.json' with { type: 'json' };
-import { DeploymentDetails } from './deployment-details';
-import { TableHeader } from './table/header';
-import { TableRows } from './table/rows';
 import type { Deployment, Deployments, Project } from '@/types/vercel-sdk';
 
 type Props = {
@@ -56,7 +57,7 @@ export const DeploymentsList = ({
       ([branchA, createdA], [branchB, createdB]) =>
         createdB - createdA || branchA.localeCompare(branchB),
     );
-    return ['All', ...sortedBranches.map(([branch]) => branch)];
+    return [DEFAULT_BRANCH, ...sortedBranches.map(([branch]) => branch)];
   }, [deployments]);
 
   const asciiBoxWidth = Math.max(project.name.length * 4, 24);
@@ -64,7 +65,7 @@ export const DeploymentsList = ({
   const selectedBranch = branches[selectedBranchIndex];
 
   const filtered = useMemo(() => {
-    if (selectedBranch === 'All') {
+    if (selectedBranch === DEFAULT_BRANCH) {
       return deployments;
     }
     return deployments.filter(d => getBranch(d) === selectedBranch);
@@ -75,6 +76,7 @@ export const DeploymentsList = ({
     [filtered],
   );
 
+  const { getColor } = useCtx();
   const scrollboxRef = useRef<ScrollBoxRenderable | null>(null);
   const branchScrollRef = useRef<ScrollBoxRenderable | null>(null);
   const [verticalScrollbarWidth, setVerticalScrollbarWidth] = useState(0);
@@ -186,8 +188,8 @@ export const DeploymentsList = ({
             scrollbarOptions: {
               showArrows: false,
               trackOptions: {
-                foregroundColor: theme.defs.darkBlue,
-                backgroundColor: theme.defs.darkSurface0,
+                foregroundColor: getColor('primary'),
+                backgroundColor: getColor('backgroundElement'),
               },
             },
           }}
@@ -200,7 +202,9 @@ export const DeploymentsList = ({
                 paddingLeft={1}
                 paddingRight={1}
                 style={{
-                  backgroundColor: isSelected ? theme.defs.darkBlue : undefined,
+                  backgroundColor: isSelected
+                    ? getColor('backgroundElement')
+                    : undefined,
                 }}
               >
                 <text

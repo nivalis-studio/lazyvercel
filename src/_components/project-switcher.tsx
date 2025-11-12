@@ -1,8 +1,8 @@
 import { type ScrollBoxRenderable, TextAttributes } from '@opentui/core';
 import { useKeyboard } from '@opentui/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCtx } from '@/ctx';
 import { useProjects } from '@/hooks/use-projects';
-import { THEME } from '@/theme';
 import type { Project } from '@/types/vercel-sdk';
 
 type Props = {
@@ -18,6 +18,7 @@ export const ProjectSwitcher = ({
   onSelect,
   onClose,
 }: Props) => {
+  const { getColor } = useCtx();
   const { projects, isLoading, hasFailed, refresh } = useProjects({ teamId });
   const sortedProjects = useMemo(
     () =>
@@ -173,8 +174,8 @@ export const ProjectSwitcher = ({
           scrollbarOptions: {
             showArrows: false,
             trackOptions: {
-              backgroundColor: THEME.defs.darkSurface0,
-              foregroundColor: THEME.defs.darkBlue,
+              backgroundColor: getColor('backgroundPanel'),
+              foregroundColor: getColor('primary'),
             },
           },
         }}
@@ -193,8 +194,8 @@ export const ProjectSwitcher = ({
               paddingTop={1}
               style={{
                 backgroundColor: isSelected
-                  ? THEME.defs.darkBlue
-                  : THEME.defs.darkSurface0,
+                  ? getColor('backgroundElement')
+                  : getColor('backgroundPanel'),
               }}
             >
               <box alignItems='center' justifyContent='space-between'>
@@ -226,7 +227,7 @@ export const ProjectSwitcher = ({
         right: 0,
         bottom: 0,
         left: 0,
-        backgroundColor: THEME.defs.darkBase,
+        backgroundColor: getColor('background'),
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -241,7 +242,7 @@ export const ProjectSwitcher = ({
           maxWidth: 100,
           height: '70%',
           maxHeight: 35,
-          backgroundColor: THEME.defs.darkBase,
+          backgroundColor: getColor('backgroundElement'),
         }}
         title='Switch project'
       >

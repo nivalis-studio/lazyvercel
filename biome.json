@@ -3,9 +3,6 @@
 	"extends": ["@nivalis/biome-config"],
 	"linter": {
 		"rules": {
-			"nursery": {
-				"noImportCycles": "off"
-			},
 			"a11y": "off"
 		}
 	}

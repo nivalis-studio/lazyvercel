@@ -1,5 +1,5 @@
+import { getConfig } from '@/lib/config';
 import { getToken } from '@/vercel';
-import { getConfig } from './config';
 import type { Project } from '@/types/vercel-sdk';
 
 const MAX_PROJECTS = 150;

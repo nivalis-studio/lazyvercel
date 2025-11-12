@@ -8,13 +8,16 @@ type Opts = {
   short?: boolean;
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: okay-ish
 export function getTimeAgo(time_: string | number | Date, opts?: Opts): string {
   const { dateToCompare, short } = opts ?? {
     short: false,
     dateToCompare: Date.now(),
   };
+
   const now_ = dateToCompare ?? Date.now();
   const now = new Date(now_).getTime();
+
   let time = time_;
   if (typeof time === 'string' || time instanceof Date) {
     time = new Date(time).getTime();

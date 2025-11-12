@@ -5,6 +5,8 @@ import {
   columns,
   getColumnStyle,
 } from '@/_components/table/columns';
+import { DEFAULT_BRANCH } from '@/constants';
+import { useCtx } from '@/ctx';
 import {
   getBranch,
   getCommit,
@@ -12,7 +14,6 @@ import {
   getStatusInfo,
 } from '@/lib/extract-deploy-details';
 import { getTimeAgo } from '@/lib/time-ago';
-import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import type { Deployments } from '@/types/vercel-sdk';
 
 const formatRelativeTime = (ts: number) => getTimeAgo(new Date(ts));
@@ -44,8 +45,9 @@ export const TableRows = ({
   setSelectedDeploymentIndex,
   setVerticalScrollbarWidth,
 }: Props) => {
+  const { getColor, ...ctx } = useCtx();
   const filtered = useMemo(() => {
-    if (selectedBranch === 'All') {
+    if (selectedBranch === DEFAULT_BRANCH) {
       return deployments;
     }
     return deployments.filter(d => getBranch(d) === selectedBranch);
@@ -155,17 +157,17 @@ export const TableRows = ({
             height: '100%',
           },
           wrapperOptions: {
-            backgroundColor: theme.defs.darkMantle,
+            backgroundColor: getColor('backgroundPanel'),
             minHeight: 0,
             height: '100%',
           },
           viewportOptions: {
-            backgroundColor: theme.defs.darkCrust,
+            backgroundColor: getColor('background'),
             minHeight: 0,
             height: '100%',
           },
           contentOptions: {
-            backgroundColor: theme.defs.darkCrust,
+            backgroundColor: getColor('backgroundElement'),
             flexDirection: 'column',
             gap: 0,
             paddingLeft: bodyPaddingLeft,
@@ -174,15 +176,15 @@ export const TableRows = ({
           scrollbarOptions: {
             showArrows: true,
             trackOptions: {
-              foregroundColor: theme.defs.darkBlue,
-              backgroundColor: theme.defs.darkSurface0,
+              foregroundColor: getColor('primary'),
+              backgroundColor: getColor('backgroundElement'),
             },
           },
         }}
       >
         {sorted.map((d, index) => {
           const createdAt = getCreatedAt(d);
-          const status = getStatusInfo(d);
+          const status = getStatusInfo(d, ctx._internal_theme);
           const branch = getBranch(d);
           const commit = getCommit(d);
           const isSelected = index === selectedDeploymentIndex;

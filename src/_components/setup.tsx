@@ -1,7 +1,7 @@
 import { TextAttributes } from '@opentui/core';
 import { useState } from 'react';
+import { useCtx } from '@/ctx';
 import { saveConfig } from '@/lib/config';
-import { THEME } from '@/theme';
 
 type Props = {
   onComplete: () => void;
@@ -10,6 +10,7 @@ type Props = {
 export const Setup = ({ onComplete }: Props) => {
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
+  const { getColor } = useCtx();
 
   const handleSave = (token_: string) => {
     const token = token_.trim();
@@ -69,7 +70,7 @@ export const Setup = ({ onComplete }: Props) => {
               border
               padding={1}
               paddingTop={0}
-              style={{ backgroundColor: THEME.defs.darkBase }}
+              style={{ backgroundColor: getColor('background') }}
             >
               <input
                 focused

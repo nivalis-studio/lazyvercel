@@ -1,6 +1,6 @@
 import { useKeyboard } from '@opentui/react';
 import { useState } from 'react';
-import { THEME } from '@/theme';
+import { useCtx } from '@/ctx';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
 
 export const DeploymentsList = ({ focused, deployments }: Props) => {
   const [hoveredIdx, setHoveredIdx] = useState(0);
+  const { getColor } = useCtx();
 
   useKeyboard(key => {
     if (!focused) {
@@ -32,7 +33,9 @@ export const DeploymentsList = ({ focused, deployments }: Props) => {
   });
   return (
     <box
-      borderColor={focused ? THEME.defs.darkBlue : THEME.defs.darkSurface2}
+      borderColor={
+        focused ? getColor('borderActive') : getColor('borderSubtle')
+      }
       borderStyle='rounded'
       flexDirection='column'
       flexGrow={1}

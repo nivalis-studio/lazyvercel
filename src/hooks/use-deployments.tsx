@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useCtx } from '@/app';
+import { getProjectConfig } from '@/lib/config';
 import { fetchProjectDeployments } from '@/lib/deployments';
 import type { Deployments } from '@/types/vercel-sdk';
 
 const REFETCH_INTERVAL_MS = 10_000;
 
 export const useDeployments = (projectId: string) => {
-  const { teamId } = useCtx();
+  const { teamId } = getProjectConfig();
   const [isLoading, setIsLoading] = useState(true);
   const [deployments, setDeployments] = useState<Deployments>([]);
   const [error, setError] = useState<Error | null>(null);
