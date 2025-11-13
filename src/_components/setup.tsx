@@ -1,6 +1,6 @@
 import { TextAttributes } from '@opentui/core';
 import { useState } from 'react';
-import { useCtx } from '@/ctx';
+import { getTheme, getThemeColor } from '@/lib/colors';
 import { saveConfig } from '@/lib/config';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 export const Setup = ({ onComplete }: Props) => {
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
-  const { getColor } = useCtx();
+  const getColor = getThemeColor(getTheme());
 
   const handleSave = (token_: string) => {
     const token = token_.trim();
