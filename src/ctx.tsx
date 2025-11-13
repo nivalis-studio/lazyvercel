@@ -9,10 +9,9 @@ import {
   useState,
 } from 'react';
 import { Panel } from '@/_components/panel';
-import { getThemeColor } from '@/lib/colors';
+import { getTheme, getThemeColor } from '@/lib/colors';
 import { getProjectConfig } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
-import theme from '@/theme/catppuccin.json' with { type: 'json' };
 import type { CliRenderer } from '@opentui/core';
 import type { Ctx } from '@/types/ctx';
 import type { Projects } from '@/types/vercel-sdk';
@@ -23,6 +22,7 @@ export const CtxProvider = ({
   children,
   renderer,
 }: PropsWithChildren<{ renderer: CliRenderer }>) => {
+  const theme = getTheme();
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
   const config = getProjectConfig();

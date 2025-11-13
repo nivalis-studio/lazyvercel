@@ -1,63 +1,69 @@
-export type ThemeVal = { dark: string; light: string };
+import z from 'zod';
+import defaultTheme from '@/theme/catppuccin.json' with { type: 'json' };
+import { getConfig } from './config';
 
-export type ThemeVals = {
-  'primary': ThemeVal;
-  'secondary': ThemeVal;
-  'accent': ThemeVal;
-  'error': ThemeVal;
-  'warning': ThemeVal;
-  'success': ThemeVal;
-  'info': ThemeVal;
-  'text': ThemeVal;
-  'textMuted': ThemeVal;
-  'background': ThemeVal;
-  'backgroundPanel': ThemeVal;
-  'backgroundElement': ThemeVal;
-  'border': ThemeVal;
-  'borderActive': ThemeVal;
-  'borderSubtle': ThemeVal;
-  'diffAdded': ThemeVal;
-  'diffRemoved': ThemeVal;
-  'diffContext': ThemeVal;
-  'diffHunkHeader': ThemeVal;
-  'diffHighlightAdded': ThemeVal;
-  'diffHighlightRemoved': ThemeVal;
-  'diffAddedBg': ThemeVal;
-  'diffRemovedBg': ThemeVal;
-  'diffContextBg': ThemeVal;
-  'diffLineNumber': ThemeVal;
-  'diffAddedLineNumberBg': ThemeVal;
-  'diffRemovedLineNumberBg': ThemeVal;
-  'markdownText': ThemeVal;
-  'markdownHeading': ThemeVal;
-  'markdownLink': ThemeVal;
-  'markdownLinkText': ThemeVal;
-  'markdownCode': ThemeVal;
-  'markdownBlockQuote': ThemeVal;
-  'markdownEmph': ThemeVal;
-  'markdownStrong': ThemeVal;
-  'markdownHorizontalRule': ThemeVal;
-  'markdownListItem': ThemeVal;
-  'markdownListEnumeration': ThemeVal;
-  'markdownImage': ThemeVal;
-  'markdownImageText': ThemeVal;
-  'markdownCodeBlock': ThemeVal;
-  'syntaxComment': ThemeVal;
-  'syntaxKeyword': ThemeVal;
-  'syntaxFunction': ThemeVal;
-  'syntaxVariable': ThemeVal;
-  'syntaxString': ThemeVal;
-  'syntaxNumber': ThemeVal;
-  'syntaxType': ThemeVal;
-  'syntaxOperator': ThemeVal;
-  'syntaxPunctuation': ThemeVal;
-};
+const THEME_KEYS = [
+  'primary',
+  'secondary',
+  'accent',
+  'error',
+  'warning',
+  'success',
+  'info',
+  'text',
+  'textMuted',
+  'background',
+  'backgroundPanel',
+  'backgroundElement',
+  'border',
+  'borderActive',
+  'borderSubtle',
+  'diffAdded',
+  'diffRemoved',
+  'diffContext',
+  'diffHunkHeader',
+  'diffHighlightAdded',
+  'diffHighlightRemoved',
+  'diffAddedBg',
+  'diffRemovedBg',
+  'diffContextBg',
+  'diffLineNumber',
+  'diffAddedLineNumberBg',
+  'diffRemovedLineNumberBg',
+  'markdownText',
+  'markdownHeading',
+  'markdownLink',
+  'markdownLinkText',
+  'markdownCode',
+  'markdownBlockQuote',
+  'markdownEmph',
+  'markdownStrong',
+  'markdownHorizontalRule',
+  'markdownListItem',
+  'markdownListEnumeration',
+  'markdownImage',
+  'markdownImageText',
+  'markdownCodeBlock',
+  'syntaxComment',
+  'syntaxKeyword',
+  'syntaxFunction',
+  'syntaxVariable',
+  'syntaxString',
+  'syntaxNumber',
+  'syntaxType',
+  'syntaxOperator',
+  'syntaxPunctuation',
+] as const;
 
-export type Theme = {
-  '$schema': string;
-  'theme': ThemeVals;
-  'defs': { [key: string]: string };
-};
+export const themeSchema = z.object({
+  defs: z.record(z.string(), z.string()),
+  theme: z.record(
+    z.enum(THEME_KEYS),
+    z.object({ dark: z.string(), light: z.string() }),
+  ),
+});
+
+export type Theme = z.infer<typeof themeSchema>;
 
 export const getThemeColor =
   (theme: Theme) =>
@@ -67,3 +73,9 @@ export const getThemeColor =
     const isColor = def.startsWith('#');
     return isColor ? def : (theme.defs[def as keyof Theme['defs']] as string);
   };
+
+export const getTheme = () => {
+  const config = getConfig();
+
+  return config?.theme ?? defaultTheme;
+};
