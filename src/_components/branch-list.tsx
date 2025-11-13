@@ -40,6 +40,10 @@ export const BranchList = ({
 
       return;
     }
+
+    if (key.name === 'space') {
+      /* TODO: behave like pressing Enter and select branch */
+    }
   });
 
   return (
@@ -65,7 +69,9 @@ export const BranchList = ({
         return (
           <box flexDirection='row' gap={1} key={branch} width='100%'>
             {isSelected ? (
-              <text flexShrink={0}>{'  '}*</text>
+              <text fg={getColor('primary')} flexShrink={0}>
+                {'  '}*
+              </text>
             ) : (
               <text fg={getColor('primary')} flexShrink={0}>
                 {relativeTime.length < MAX_TIME_CHARS && ' '}

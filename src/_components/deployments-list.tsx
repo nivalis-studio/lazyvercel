@@ -1,16 +1,16 @@
 import { useKeyboard } from '@opentui/react';
 import { useState } from 'react';
-import { useCtx } from '@/ctx';
+import { ScrollSelect, type ScrollSelectProps } from './scroll-select';
+import { DeploymentListHeader } from './table/header';
+import { DeploymentListRow } from './table/rows';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {
-  focused: boolean;
   deployments: Array<Deployment>;
-};
+} & Pick<ScrollSelectProps, 'focused' | 'getFocus'>;
 
-export const DeploymentsList = ({ focused, deployments }: Props) => {
+export const DeploymentsList = ({ focused, deployments, ...props }: Props) => {
   const [hoveredIdx, setHoveredIdx] = useState(0);
-  const { getColor } = useCtx();
 
   useKeyboard(key => {
     if (!focused) {
@@ -32,18 +32,17 @@ export const DeploymentsList = ({ focused, deployments }: Props) => {
     }
   });
   return (
-    <box
-      borderColor={
-        focused ? getColor('borderActive') : getColor('borderSubtle')
-      }
-      borderStyle='rounded'
-      flexDirection='column'
-      flexGrow={1}
-      height='100%'
-      padding={1}
+    <ScrollSelect
+      header={<DeploymentListHeader />}
+      rows={deployments.map(deployment => (
+        <DeploymentListRow deployment={deployment} key={deployment.uid} />
+      ))}
       title='Deployments'
-    >
-      {null}
-    </box>
+      {...props}
+      focused={focused}
+      onSelect={selected => {
+        console.debug({ selected });
+      }}
+    />
   );
 };

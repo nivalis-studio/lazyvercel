@@ -1,10 +1,12 @@
 import { useTimeline } from '@opentui/react';
 import { useEffect, useState } from 'react';
+import { useCtx } from '@/ctx';
 
 const TO_PERCENT = 100;
 
 export const Loading = ({ label }: { label?: string }) => {
   const [progress, setProgress] = useState<number>(0);
+  const { getColor } = useCtx();
 
   const timeline = useTimeline({
     duration: 1200,
@@ -42,7 +44,7 @@ export const Loading = ({ label }: { label?: string }) => {
 
   if (end > start) {
     loadingBar =
-      ' '.repeat(start) + '='.repeat(end - start) + ' '.repeat(barLength - end);
+      ' '.repeat(start) + '▇'.repeat(end - start) + ' '.repeat(barLength - end);
   }
 
   const displayLabel = label || 'Loading';
@@ -51,6 +53,7 @@ export const Loading = ({ label }: { label?: string }) => {
     <box alignItems='center' flexGrow={1} justifyContent='center'>
       <box
         alignItems='center'
+        borderColor={getColor('borderActive')}
         borderStyle='rounded'
         flexDirection='column'
         gap={1}
@@ -62,8 +65,8 @@ export const Loading = ({ label }: { label?: string }) => {
           paddingBottom: 1,
         }}
       >
-        <text>{displayLabel}</text>
-        <text>[{loadingBar}]</text>
+        <text fg={getColor('secondary')}>{displayLabel}</text>
+        <text fg={getColor('secondary')}>[{loadingBar}]</text>
       </box>
     </box>
   );

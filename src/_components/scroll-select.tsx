@@ -4,6 +4,7 @@ import { useCtx } from '@/ctx';
 import type { BoxOptions, ScrollBoxRenderable } from '@opentui/core';
 
 export type ScrollSelectProps = {
+  header?: ReactNode;
   rows: Array<ReactNode>;
   focused: boolean;
   getFocus: () => void;
@@ -11,6 +12,7 @@ export type ScrollSelectProps = {
 } & BoxOptions;
 
 export const ScrollSelect = ({
+  header,
   rows,
   focused,
   getFocus,
@@ -68,9 +70,7 @@ export const ScrollSelect = ({
 
   return (
     <box
-      borderColor={
-        focused ? getColor('borderActive') : getColor('borderSubtle')
-      }
+      borderColor={focused ? getColor('secondary') : getColor('borderSubtle')}
       borderStyle='rounded'
       flexDirection='column'
       height='100%'
@@ -78,6 +78,7 @@ export const ScrollSelect = ({
       padding={1}
       {...props}
     >
+      {header ? header : null}
       <scrollbox
         flexDirection='column'
         flexGrow={1}
@@ -90,7 +91,7 @@ export const ScrollSelect = ({
           return (
             <box
               backgroundColor={
-                isHovered ? getColor('backgroundElement') : undefined
+                isHovered ? getColor('backgroundPanel') : undefined
               }
               // biome-ignore lint/suspicious/noArrayIndexKey: .
               key={idx}

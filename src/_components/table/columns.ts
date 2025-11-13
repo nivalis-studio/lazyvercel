@@ -5,7 +5,7 @@ export const columns: Array<Column> = [
   { label: 'Status', width: 12 },
   { label: 'Target', width: 10 },
   { label: 'URL', width: 40 },
-  { label: 'Branch', width: 22 },
+  { label: 'Branch', width: 32 },
   { label: 'Commit', width: 8 },
 ] as const;
 

@@ -24,8 +24,9 @@ type Ctx = {
   refreshProjects: () => Promise<void>;
   project: Project;
   teamId: string;
-  _internal_theme: Theme;
   getColor: (color: keyof Theme['theme']) => string;
+  /** Always use `ctx.getColor` when possible */
+  _internal_theme: Theme;
 };
 
 const ctx = createContext<Ctx | null>(null);

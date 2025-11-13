@@ -91,6 +91,7 @@ export const ProjectDashboard = () => {
       <DeploymentsList
         deployments={filteredDeployments}
         focused={focused === 1}
+        getFocus={() => setFocused(1)}
       />
     </box>
   );
