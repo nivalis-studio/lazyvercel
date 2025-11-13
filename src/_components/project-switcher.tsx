@@ -55,7 +55,7 @@ export const ProjectSwitcher = () => {
           <text attributes={TextAttributes.DIM}>{project.id}</text>
         </box>
       ))}
-      title='Projects'
+      title='Switch project'
     />
   );
 };

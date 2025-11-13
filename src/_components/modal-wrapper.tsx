@@ -1,7 +1,7 @@
 import { useCtx } from '@/ctx';
 import type { Modal } from '@/types/modal';
 
-export const ModalWrapper = ({ children, label }: NonNullable<Modal>) => {
+export const ModalWrapper = ({ children }: Modal) => {
   const { getColor } = useCtx();
 
   return (
@@ -27,7 +27,6 @@ export const ModalWrapper = ({ children, label }: NonNullable<Modal>) => {
           maxHeight: 35,
           backgroundColor: getColor('backgroundPanel'),
         }}
-        title={label}
       >
         {children}
       </scrollbox>

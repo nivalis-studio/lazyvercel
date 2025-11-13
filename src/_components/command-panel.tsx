@@ -18,7 +18,6 @@ const COMMANDS: Array<Command> = [
       ctx.setModal({
         children: <ProjectSwitcher />,
         key: 'project-switcher',
-        label: 'Switch project',
       });
     },
   },
@@ -33,7 +32,6 @@ const COMMANDS: Array<Command> = [
           </box>
         ),
         key: 'theme-switcher',
-        label: 'Switch theme',
       });
     },
   },
