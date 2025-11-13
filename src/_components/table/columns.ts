@@ -1,7 +1,7 @@
 export type Column = { label: string; width?: number; flex?: number };
 
 export const columns: Array<Column> = [
-  { label: 'Time', width: 14 },
+  { label: 'Time', width: 18 },
   { label: 'Status', width: 12 },
   { label: 'Target', width: 10 },
   { label: 'URL', width: 40 },
