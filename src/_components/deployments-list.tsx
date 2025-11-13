@@ -1,5 +1,5 @@
 import { useKeyboard } from '@opentui/react';
-import { quittingKeys } from '@/constants';
+import { QUITTING_KEYS } from '@/constants';
 import { ScrollSelect, type ScrollSelectProps } from './scroll-select';
 import { DeploymentListHeader } from './table/header';
 import { DeploymentListRow } from './table/rows';
@@ -21,7 +21,7 @@ export const DeploymentsList = ({
       return;
     }
 
-    if (quittingKeys.includes(key.name)) {
+    if (QUITTING_KEYS.includes(key.name)) {
       process.exit(0);
     }
   });

@@ -1,6 +1,6 @@
 import { useKeyboard } from '@opentui/react';
 import { useState } from 'react';
-import { quittingKeys } from '@/constants';
+import { QUITTING_KEYS } from '@/constants';
 import type { CliRenderer } from '@opentui/core';
 
 type Props = {
@@ -27,7 +27,7 @@ export const useShortcuts = ({ renderer, enabled = true }: Props) => {
     }
 
     if (showProjectPicker) {
-      if (quittingKeys.includes(key.name)) {
+      if (QUITTING_KEYS.includes(key.name)) {
         setShowProjectPicker(false);
         return;
       }

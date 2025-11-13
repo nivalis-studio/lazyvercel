@@ -2,18 +2,19 @@ import { useKeyboard } from '@opentui/react';
 import {
   createContext,
   type PropsWithChildren,
-  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { Panel } from '@/_components/panel';
+import { CommandPanel } from '@/_components/command-panel';
+import { MODAL_KEYS } from '@/constants';
 import { getTheme, getThemeColor } from '@/lib/colors';
 import { getConfig, getProjectConfig } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
 import type { CliRenderer } from '@opentui/core';
 import type { Ctx } from '@/types/ctx';
+import type { Modal } from '@/types/modal';
 import type { Projects } from '@/types/vercel-sdk';
 
 const ctx = createContext<Ctx | null>(null);
@@ -26,7 +27,7 @@ export const CtxProvider = ({
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
   const config = getProjectConfig();
-  const [modal, setModal] = useState<ReactNode>(null);
+  const [modal, setModal] = useState<Modal>(null);
   const [projectId, setProjectId] = useState(config.projectId);
   const [projects, setProjects] = useState<Projects | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -58,8 +59,25 @@ export const CtxProvider = ({
   } satisfies Ctx;
 
   useKeyboard(key => {
-    if (key.name === 'p' && key.ctrl) {
-      setModal(<Panel ctx={ctx_} />);
+    if (key.ctrl && key.name === 'p') {
+      setModal({
+        children: <CommandPanel ctx={ctx_} />,
+        key: MODAL_KEYS.commandPanelKey,
+      });
+      return;
+    }
+
+    if (key.ctrl && key.name === 'r') {
+      refreshProjects().catch(err => {
+        setError(err instanceof Error ? err : new Error(String(err)));
+      });
+      return;
+    }
+
+    if (key.ctrl && key.name === 'j') {
+      renderer.console.show();
+      renderer.console.focus();
+      return;
     }
   });
 

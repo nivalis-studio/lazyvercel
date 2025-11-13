@@ -25,13 +25,15 @@ export const ConfiguredApp = () => {
 
   const content = <ProjectDashboard />;
 
+  const Modal = modal?.children ? modal.children : null;
+
   return (
     <box
       flexDirection='column'
       flexGrow={1}
       style={{ position: 'relative', minHeight: 0 }}
     >
-      {modal}
+      {Modal}
       {content}
     </box>
   );

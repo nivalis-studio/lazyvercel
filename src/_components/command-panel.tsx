@@ -1,22 +1,51 @@
 import { useKeyboard } from '@opentui/react';
-import { quittingKeys } from '@/constants';
-import { ScrollSelect } from './scroll-select';
+import {
+  ScrollSelect,
+  type ScrollSelectProps,
+} from '@/_components/scroll-select';
+import { MODAL_KEYS, QUITTING_KEYS } from '@/constants';
 import type { Ctx } from '@/types/ctx';
+
+const commands = [
+  {
+    key: 'project-switcher',
+    name: 'Project Switcher',
+  },
+  {
+    key: 'theme-switcher',
+    name: 'Theme Switcher',
+  },
+] as const;
+
+type CommandPanelItemProps = {
+  ctx: Ctx;
+  command: (typeof commands)[number];
+} & Pick<ScrollSelectProps, 'onSelect'>;
+
+const CommandPanelItem = ({ command, ctx }: CommandPanelItemProps) => {
+  const { setModal } = ctx;
+
+  return (
+    <box padding={1}>
+      <text>{command.name}</text>
+    </box>
+  );
+};
 
 type Props = {
   ctx: Ctx;
 };
 
-export const Panel = ({ ctx }: Props) => {
+export const CommandPanel = ({ ctx }: Props) => {
   const { setModal, getColor, modal } = ctx;
-  const isFocused = modal !== null;
+  const isFocused = modal?.key === MODAL_KEYS.commandPanelKey;
 
   useKeyboard(key => {
     if (!isFocused) {
       return;
     }
 
-    if (quittingKeys.includes(key.name)) {
+    if (QUITTING_KEYS.includes(key.name)) {
       setModal(null);
     }
   });
@@ -49,11 +78,9 @@ export const Panel = ({ ctx }: Props) => {
           focused
           getFocus={() => null}
           onSelect={() => null}
-          rows={[
-            <text key={1}>Item 1</text>,
-            <text key={2}>Item 2</text>,
-            <text key={3}>Item 3</text>,
-          ]}
+          rows={commands.map(command => (
+            <CommandPanelItem command={command} ctx={ctx} key={command.key} />
+          ))}
           title='Command panel'
         />
       </scrollbox>

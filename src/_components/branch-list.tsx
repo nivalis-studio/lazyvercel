@@ -4,7 +4,7 @@ import {
   ScrollSelect,
   type ScrollSelectProps,
 } from '@/_components/scroll-select';
-import { DEFAULT_BRANCH, quittingKeys } from '@/constants';
+import { DEFAULT_BRANCH, QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { getCreatedAt, getStatusInfo } from '@/lib/extract-deploy-details';
 import { getTimeAgo } from '@/lib/time-ago';
@@ -46,7 +46,7 @@ export const BranchList = ({
       return;
     }
 
-    if (quittingKeys.includes(key.name)) {
+    if (QUITTING_KEYS.includes(key.name)) {
       process.exit(0);
     }
   });

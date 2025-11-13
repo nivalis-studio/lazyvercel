@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react';
 import type { Theme } from '@/lib/colors';
 import type { Project, Projects } from '@/types/vercel-sdk';
+import type { Modal } from './modal';
 
 export type Ctx = {
-  modal: ReactNode;
-  setModal: (modal: ReactNode) => void;
+  modal: Modal;
+  setModal: (modal: Modal) => void;
   error: Error | null;
   projectId: string;
   setProjectId: (projectId: string) => void;
