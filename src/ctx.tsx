@@ -10,9 +10,10 @@ import {
 import { CommandPanel } from '@/_components/command-panel';
 import { MODAL_KEYS } from '@/constants';
 import { getTheme, getThemeColor } from '@/lib/colors';
-import { getConfig, getProjectConfig } from '@/lib/config';
+import { CONFIG } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
 import { ProjectDashboard } from './_components/project-dashboard';
+import { getCurrentProjectData } from './lib/current-project';
 import type { CliRenderer } from '@opentui/core';
 import type { Ctx } from '@/types/ctx';
 import type { Modal } from '@/types/modal';
@@ -24,20 +25,20 @@ export const CtxProvider = ({
   children,
   renderer,
 }: PropsWithChildren<{ renderer: CliRenderer }>) => {
-  const theme = getTheme(getConfig());
+  const theme = getTheme(CONFIG.current);
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
-  const config = getProjectConfig();
+  const { projectId: projectId_, teamId } = getCurrentProjectData();
   const [content, setContent] = useState(<ProjectDashboard />);
   const [modal, setModal] = useState<Modal | null>(null);
-  const [projectId, setProjectId] = useState(config.projectId);
+  const [projectId, setProjectId] = useState(projectId_);
   const [projects, setProjects] = useState<Projects | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const refreshProjects = useCallback(async () => {
-    const projects_ = await fetchProjects_(config.teamId);
+    const projects_ = await fetchProjects_(teamId);
     setProjects(projects_);
-  }, [config]);
+  }, [teamId]);
 
   useEffect(() => {
     refreshProjects().catch(err => {
@@ -55,7 +56,7 @@ export const CtxProvider = ({
       setProjectId(id);
       setContent(<ProjectDashboard />);
     },
-    teamId: config.teamId,
+    teamId,
     projects,
     refreshProjects,
     error,

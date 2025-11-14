@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 import { createCliRenderer } from '@opentui/core';
 import { createRoot } from '@opentui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Setup } from '@/_components/setup';
 import { ConfiguredApp } from '@/app';
 import { CtxProvider, useCtx } from '@/ctx';
 import { ErrorBoundary } from '@/error';
 import { ExitProvider } from '@/exit';
-import { getConfig } from '@/lib/config';
-import { resetVercelInstance } from '@/vercel';
+import { CONFIG } from '@/lib/config';
 
 const renderer = await createCliRenderer();
 
@@ -22,17 +21,14 @@ const Inner = () => {
 };
 
 const App_ = () => {
-  const [isConfigured, setIsConfigured] = useState(Boolean(getConfig()));
+  const [isConfigured, setIsConfigured] = useState(CONFIG.isReady);
+
+  useEffect(() => {
+    setIsConfigured(CONFIG.isReady);
+  }, [CONFIG.isReady]);
 
   if (!isConfigured) {
-    return (
-      <Setup
-        onComplete={() => {
-          setIsConfigured(true);
-          resetVercelInstance();
-        }}
-      />
-    );
+    return <Setup />;
   }
 
   return (
