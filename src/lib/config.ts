@@ -2,11 +2,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import z from 'zod';
-import { themeSchema } from './colors';
+import { themeNameSchema, themeSchema } from './colors';
 
 const configSchema = z.object({
   bearerToken: z.string().min(1),
-  theme: themeSchema.optional(),
+  theme: z.union([themeSchema, themeNameSchema]).optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
