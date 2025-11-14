@@ -25,7 +25,7 @@ export const CtxProvider = ({
   children,
   renderer,
 }: PropsWithChildren<{ renderer: CliRenderer }>) => {
-  const theme = getTheme(CONFIG.current);
+  const theme = getTheme(CONFIG.get());
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
   const { projectId: projectId_, teamId } = getCurrentProjectData();

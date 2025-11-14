@@ -119,12 +119,13 @@ export const themeNameSchema = z.enum(THEMES);
 export type Theme = z.infer<typeof themeSchema>;
 
 export const getThemeColor =
-  (theme: Theme) =>
+  (theme: Theme | (typeof THEMES)[number]) =>
   (key: keyof Theme['theme']): string => {
-    const val = theme.theme[key];
+    const theme_: Theme = typeof theme === 'string' ? THEMES_MAP[theme] : theme;
+    const val = theme_.theme[key];
     const def = typeof val === 'string' ? val : val.dark;
     const isColor = def.startsWith('#');
-    return isColor ? def : (theme.defs[def as keyof Theme['defs']] as string);
+    return isColor ? def : (theme_.defs[def as keyof Theme['defs']] as string);
   };
 
 export const getTheme = (config?: Config | null) => {

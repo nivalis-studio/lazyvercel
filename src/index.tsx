@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { createCliRenderer } from '@opentui/core';
 import { createRoot } from '@opentui/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Setup } from '@/_components/setup';
 import { ConfiguredApp } from '@/app';
 import { CtxProvider, useCtx } from '@/ctx';
@@ -21,15 +21,11 @@ const Inner = () => {
 };
 
 const App_ = () => {
-  const [isConfigured, setIsConfigured] = useState(CONFIG.isReady);
+  const [isConfigured, setIsConfigured] = useState(CONFIG.isLoggedIn());
 
-  useEffect(() => {
-    setIsConfigured(CONFIG.isReady);
-  }, [CONFIG.isReady]);
-
-  if (!isConfigured) {
-    return <Setup />;
-  }
+  const onComplete = () => {
+    setIsConfigured(CONFIG.isLoggedIn());
+  };
 
   return (
     <box
@@ -38,9 +34,13 @@ const App_ = () => {
       style={{ position: 'relative', minHeight: 0 }}
     >
       <ExitProvider>
-        <CtxProvider renderer={renderer}>
-          <Inner />
-        </CtxProvider>
+        {isConfigured ? (
+          <CtxProvider renderer={renderer}>
+            <Inner />
+          </CtxProvider>
+        ) : (
+          <Setup onComplete={onComplete} />
+        )}
       </ExitProvider>
     </box>
   );

@@ -1,12 +1,16 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { Vercel } from '@vercel/sdk';
 import z from 'zod';
 import { themeNameSchema, themeSchema } from './colors';
 
 const configSchema = z.object({
-  bearerToken: z.string().min(1),
-  theme: z.union([themeSchema, themeNameSchema]).optional(),
+  bearerToken: z.string().default('myVercelToken'),
+  theme: z
+    .union([themeSchema, themeNameSchema])
+    .optional()
+    .default('catppuccin'),
 });
 
 export type Config = z.infer<typeof configSchema>;
@@ -14,23 +18,30 @@ export type Config = z.infer<typeof configSchema>;
 const CONFIG_DIR = path.join(os.homedir(), '.config', 'lazyvercel');
 const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 
+const DEFAULT_CONFIG: Config = {
+  bearerToken: 'myVercelToken',
+  theme: 'catppuccin',
+};
+
 const loadConfig = async () => {
   try {
     if (!fs.existsSync(CONFIG_PATH)) {
-      return null;
+      throw new Error("Config file doesn't exist");
     }
     const content = fs.readFileSync(CONFIG_PATH, 'utf8');
-    const config = configSchema.parse(JSON.parse(content) as Config);
+    const config = configSchema.parse(JSON.parse(content));
 
     const isValid = await validateToken(config.bearerToken);
 
     if (!isValid) {
-      return null;
+      return { config, loggedIn: false };
     }
 
-    return config;
+    return { config, loggedIn: true };
   } catch {
-    return null;
+    CONFIG.save(DEFAULT_CONFIG);
+
+    return { config: DEFAULT_CONFIG, loggedIn: false };
   }
 };
 
@@ -49,33 +60,31 @@ let _config = await loadConfig();
 
 export const CONFIG = {
   get() {
-    if (!_config) {
-      throw new Error(
-        'Config not initialized - this should only be called after isConfigReady() returns true',
-      );
+    if (!_config.loggedIn) {
+      throw new Error('Invalid or expired bearer token');
     }
-    return _config;
+    return _config.config;
   },
-  get_nullable() {
-    return _config;
+  get_uncheked() {
+    return _config.config;
   },
-  get isReady() {
-    return _config !== null;
-  },
-  async reload() {
-    _config = await loadConfig();
-  },
-};
+  getVercel() {
+    if (!_config.loggedIn) {
+      throw new Error('Invalid or expired bearer token');
+    }
 
-export const saveConfig = async (config: Config) => {
-  try {
+    return new Vercel({ bearerToken: _config.config.bearerToken });
+  },
+  isLoggedIn() {
+    return _config.loggedIn;
+  },
+  save(config: Config) {
     if (!fs.existsSync(CONFIG_DIR)) {
       fs.mkdirSync(CONFIG_DIR, { recursive: true });
     }
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
-    await CONFIG.reload();
-  } catch (error) {
-    console.error('Failed to save config:', error);
-    throw error;
-  }
+  },
+  async reload() {
+    _config = await loadConfig();
+  },
 };

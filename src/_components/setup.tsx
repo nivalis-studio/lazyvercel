@@ -1,13 +1,14 @@
 import { TextAttributes } from '@opentui/core';
 import { useState } from 'react';
 import { getThemeColor } from '@/lib/colors';
-import { saveConfig, validateToken } from '@/lib/config';
-import defaultTheme from '@/theme/catppuccin.json' with { type: 'json' };
+import { CONFIG, validateToken } from '@/lib/config';
 
-export const Setup = () => {
+type Props = { onComplete: () => void };
+export const Setup = ({ onComplete }: Props) => {
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
-  const getColor = getThemeColor(defaultTheme);
+  const config = CONFIG.get_uncheked();
+  const getColor = getThemeColor(config.theme);
 
   const handleSave = async (token_: string) => {
     const token = token_.trim();
@@ -25,7 +26,10 @@ export const Setup = () => {
     }
 
     try {
-      await saveConfig({ bearerToken: token });
+      CONFIG.save({ ...config, bearerToken: token });
+      await CONFIG.reload();
+
+      onComplete();
     } catch {
       setError('Failed to save configuration');
     }

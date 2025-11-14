@@ -4,13 +4,13 @@ import open from 'open';
 import { useEffect, useRef, useState } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
+import { CONFIG } from '@/lib/config';
 import {
   getBranch,
   getCommit,
   getCreatedAt,
   getStatusInfo,
 } from '@/lib/extract-deploy-details';
-import { getVercel } from '@/vercel';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {
@@ -167,7 +167,7 @@ export const DeploymentLogs = ({
 
     const fetchLogs = async () => {
       try {
-        const vercel = getVercel();
+        const vercel = CONFIG.getVercel();
         const response = await vercel.deployments.getDeploymentEvents({
           idOrUrl: deployment.uid,
           teamId,
