@@ -14,7 +14,7 @@ const renderer = await createCliRenderer();
 const Inner = () => {
   const ctx = useCtx();
   return (
-    <ErrorBoundary theme={ctx._internal_theme}>
+    <ErrorBoundary theme={ctx.theme}>
       <ConfiguredApp />
     </ErrorBoundary>
   );

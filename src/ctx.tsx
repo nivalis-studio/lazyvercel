@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { CommandPanel } from '@/_components/command-panel';
 import { MODAL_KEYS } from '@/constants';
-import { getTheme, getThemeColor } from '@/lib/colors';
+import { getThemeColor } from '@/lib/colors';
 import { CONFIG } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
 import { ProjectDashboard } from './_components/project-dashboard';
@@ -25,7 +25,7 @@ export const CtxProvider = ({
   children,
   renderer,
 }: PropsWithChildren<{ renderer: CliRenderer }>) => {
-  const theme = getTheme(CONFIG.get());
+  const [theme, setTheme] = useState(CONFIG.getTheme());
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
   const { projectId: projectId_, teamId } = getCurrentProjectData();
@@ -61,9 +61,10 @@ export const CtxProvider = ({
     refreshProjects,
     error,
     getColor,
-    _internal_theme: theme,
+    setTheme,
     // biome-ignore lint/style/noNonNullAssertion: Simpler typings, since in app we throw on undefined
     project: (projects ?? []).find(p => p.id === projectId)!,
+    theme,
   } satisfies Ctx;
 
   useKeyboard(key => {

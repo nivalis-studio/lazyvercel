@@ -16,6 +16,6 @@ export type Ctx = {
   project: Project;
   teamId: string;
   getColor: (color: keyof Theme['theme']) => string;
-  /** Always use `ctx.getColor` when possible */
-  _internal_theme: Theme;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 };

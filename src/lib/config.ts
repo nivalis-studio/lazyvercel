@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { Vercel } from '@vercel/sdk';
 import z from 'zod';
-import { themeNameSchema, themeSchema } from './colors';
+import { THEMES_MAP, type Theme, themeNameSchema, themeSchema } from './colors';
 
 const configSchema = z.object({
   bearerToken: z.string().default('myVercelToken'),
@@ -74,6 +74,14 @@ export const CONFIG = {
     }
 
     return new Vercel({ bearerToken: _config.config.bearerToken });
+  },
+  getTheme(): Theme {
+    const theme = _config.config.theme;
+    if (typeof theme === 'string') {
+      return THEMES_MAP[theme];
+    }
+
+    return theme;
   },
   isLoggedIn() {
     return _config.loggedIn;

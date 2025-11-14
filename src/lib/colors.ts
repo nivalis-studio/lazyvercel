@@ -1,7 +1,6 @@
 import z from 'zod';
 import aura from '@/theme/aura.json' with { type: 'json' };
 import ayu from '@/theme/ayu.json' with { type: 'json' };
-import defaultTheme from '@/theme/catppuccin.json' with { type: 'json' };
 import catppuccin from '@/theme/catppuccin.json' with { type: 'json' };
 import cobalt2 from '@/theme/cobalt2.json' with { type: 'json' };
 import dracula from '@/theme/dracula.json' with { type: 'json' };
@@ -23,7 +22,6 @@ import synthwave84 from '@/theme/synthwave84.json' with { type: 'json' };
 import tokyonight from '@/theme/tokyonight.json' with { type: 'json' };
 import vesper from '@/theme/vesper.json' with { type: 'json' };
 import zenburn from '@/theme/zenburn.json' with { type: 'json' };
-import type { Config } from './config';
 
 export const THEMES_MAP = {
   aura,
@@ -118,8 +116,10 @@ export const themeNameSchema = z.enum(THEMES);
 
 export type Theme = z.infer<typeof themeSchema>;
 
+export type ThemeOrName = Theme | (typeof THEMES)[number];
+
 export const getThemeColor =
-  (theme: Theme | (typeof THEMES)[number]) =>
+  (theme: Theme | ThemeOrName) =>
   (key: keyof Theme['theme']): string => {
     const theme_: Theme = typeof theme === 'string' ? THEMES_MAP[theme] : theme;
     const val = theme_.theme[key];
@@ -127,7 +127,3 @@ export const getThemeColor =
     const isColor = def.startsWith('#');
     return isColor ? def : (theme_.defs[def as keyof Theme['defs']] as string);
   };
-
-export const getTheme = (config?: Config | null) => {
-  return config?.theme ?? defaultTheme;
-};

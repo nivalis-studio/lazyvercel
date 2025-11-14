@@ -28,7 +28,7 @@ export const DeploymentDetails = ({
   ...props
 }: Props) => {
   const { getColor, ...ctx } = useCtx();
-  const status = getStatusInfo(deployment, ctx._internal_theme);
+  const status = getStatusInfo(deployment, ctx.theme);
   const branch = getBranch(deployment);
   const commit = getCommit(deployment, false);
   const createdAt = new Date(getCreatedAt(deployment));

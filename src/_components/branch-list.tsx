@@ -70,7 +70,7 @@ export const BranchList = ({
           short: true,
         });
 
-        const { icon, fg } = getStatusInfo(lastDeployment, ctx._internal_theme);
+        const { icon, fg } = getStatusInfo(lastDeployment, ctx.theme);
 
         return (
           <box flexDirection='row' gap={1} key={branch} width='100%'>
