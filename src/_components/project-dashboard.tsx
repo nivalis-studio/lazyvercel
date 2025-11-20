@@ -25,7 +25,7 @@ const getBranchesList = (deployments: Array<Deployment>) => {
 
     const latest = map.get(branch);
 
-    if (!lastDeployment || createdAt < getCreatedAt(deployment)) {
+    if (!lastDeployment || createdAt > getCreatedAt(lastDeployment)) {
       lastDeployment = deployment;
     }
 
