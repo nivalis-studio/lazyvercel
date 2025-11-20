@@ -1,113 +1,124 @@
 # lazyvercel
 
-A beautiful Terminal User Interface (TUI) for managing Vercel deployments, built with Bun and OpenTUI.
+A fast Terminal User Interface (TUI) for exploring Vercel deployments from any linked project directory. Built with Bun, React 19, and OpenTUI, it delivers a mouse-friendly yet fully keyboard-driven workflow.
+
+## Quick Start
+
+1. From a directory that already contains `.vercel/project.json`, run `bunx lazyvercel`.
+2. The first launch opens the setup flow. Paste a Vercel token created at [vercel.com/account/tokens](https://vercel.com/account/tokens).
+3. Tokens are saved to `~/.config/lazyvercel/config.json` and reused until revoked.
+4. Once authenticated, the dashboard automatically loads the project deployments for the team id inside `.vercel/project.json`.
+
+```bash
+bunx lazyvercel         # run inside a linked repo
+lazyvercel              # if installed globally
+```
 
 ## Features
 
-- 📋 View and filter deployments by branch
-- 🔍 Search deployments with real-time updates
-- 📊 View deployment details and build logs
-- 🎨 Catppuccin theme with syntax highlighting
-- ⚡ Real-time log streaming for active builds
-- 🚀 Fast and lightweight single executable
+- Branch-aware deployments browser with instant filtering
+- Detailed deployment drawer including build metadata and live logs
+- Project and theme switchers surfaced through a command palette
+- Color themes powered by OpenTUI + Catppuccin presets (custom themes supported)
+- Keyboard shortcuts throughout; mouse hover and scroll support for discoverability
+
+## Prerequisites
+
+- Bun `>= 1.3.0` (used for development, bundling, and runtime)
+- A Vercel project that has been linked locally (`vercel link`) so that `.vercel/project.json` exists
+- A personal Vercel access token with read access to the target project/organization
 
 ## Installation
 
+Run lazily via `bunx` without installing anything globally:
+
 ```bash
 bunx lazyvercel
 ```
 
-Or install globally with bun:
+Or install it once and reuse:
 
 ```bash
 bun install -g lazyvercel
-```
-
-And run with
-
-```bash
 lazyvercel
 ```
 
-## Setup
+To work from source:
 
-On first run, you'll be prompted to configure your Vercel API token:
+```bash
+git clone https://github.com/nivalis-studio/lazyvercel.git
+cd lazyvercel
+bun install
+```
 
-1. Visit [Vercel Account Tokens](https://vercel.com/account/tokens)
-2. Click "Create Token"
-3. Give it a name (e.g., "Vercel TUI")
-4. Select appropriate scopes (read access to projects and deployments)
-5. Copy the generated token
-6. Paste it into the setup (needs bun >= 1.3.0)
+## Authentication setup
 
-The token will be securely stored in `~/.config/lazyvercel/config.json`.
-
-For more information about Vercel API authentication, see the [official documentation](https://vercel.com/docs/rest-api/reference/welcome#authentication).
+- Generate a token in the Vercel dashboard (scope: read access to deployments/projects).
+- Paste it into the in-app form; validation happens before anything is written to disk.
+- The config file stores three things: `bearerToken`, selected theme, and an optional custom theme.
+- To rotate credentials, delete `~/.config/lazyvercel/config.json` or relaunch and paste a new token.
 
 ## Usage
 
-Run the TUI from any Vercel project directory:
 
-```bash
-bunx lazyvercel
-```
+The CLI detects the current project from `.vercel/project.json`. When multiple projects exist within the same team, use the command palette (`Ctrl+P`) to switch context without leaving the app. Theme switching lives in the same palette.
 
-The TUI will automatically detect your project from the `.vercel/project.json` file.
+### Keyboard shortcuts
 
-## Keyboard Shortcuts
+**Global**
+- `Ctrl+P` – Open command palette (project/theme switchers)
+- `Ctrl+K` – Toggle the OpenTUI console
+- `Shift+Q` or `Ctrl+C` – Quit
+- `?` – Toggle the help overlay
 
-### Global
+**Branch list**
+- `↑ / ↓` or `j / k` – Move selection
+- `o` – Open the branch in the Vercel dashboard
+- `q / esc / backspace` – Exit to the terminal
 
-- `?` - Show help panel
-- `Q` / `ESC` - Quit application
-- `Ctrl+K` - Toggle console
+**Deployments list**
+- `TAB / Shift+TAB` – Cycle the active branch filter
+- `ENTER` – Drill into deployment details
+- `o` – Open selected deployment in the browser
+- `r` – Force refresh
 
-### Deployments List
+**Deployment details / logs**
+- `o` – Open deployment URL
+- `q / esc / backspace` – Return to the list
 
-- `↑` / `↓` - Navigate deployments
-- `TAB` - Cycle branch filter forward
-- `Shift+TAB` - Cycle branch filter backward
-- `ENTER` - View deployment details
-- `O` - Open deployment in Vercel dashboard
-- `R` - Refresh deployments list
-
-### Deployment Details
-
-- `BACKSPACE` - Go back to list
-- `O` - Open in Vercel dashboard
+Mouse hover focuses panes and rows; scrolling works in every list.
 
 ## Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/nivalis-studio/lazyvercel.git
-cd lazyvercel
-
-# Install dependencies
-bun install
-
-# Run in development mode
-bun run dev
-
-# Build executable
-bun run build
-
-# Type check
-bun run ts
-
-# Lint
-bun run lint
+bun install              # install dependencies
+bun run dev              # start OpenTUI renderer with live reload
+bun run build            # build distributable to dist/index.js
+bun run lint             # biome linting
+bun run ts               # type-check with tsc --noEmit
 ```
 
-## Requirements
+The repo uses Lefthook for git hooks (`bun run prepare`) and Biome for formatting/linting. The bundled binary lives at `dist/index.js` and is the file shipped to npm.
 
-- Node.js 18+ or Bun 1.0+
-- A Vercel project with `.vercel/project.json` configured
+## Releasing
+
+1. Ensure `bun run lint` and `bun run ts` pass.
+2. Run `bun run build`; verify `dist/index.js` executes via `bun dist/index.js`.
+3. Bump the version (`npm version patch|minor|major`).
+4. Publish with `bun publish` (or `npm publish`).
+5. Create a GitHub release describing the changes.
+
+## Troubleshooting
+
+- **Missing `.vercel/project.json`** – Run `vercel link` in your project directory so the CLI knows which project/org to query.
+- **Invalid token errors** – Delete `~/.config/lazyvercel/config.json` and relaunch; the setup flow will prompt for a new token.
+- **Blank screen on launch** – Ensure your terminal supports truecolor and that Bun is updated to the version in `package.json`.
+- **Logs never load** – Confirm the project allows access to deployment events and that the token’s scope includes deployments.
+
+## Contributing
+
+Bug reports and pull requests are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for the recommended workflow, coding standards, and release checklist.
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
