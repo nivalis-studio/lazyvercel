@@ -22,6 +22,13 @@ const DEFAULT_CONFIG: Config = {
   customTheme: THEMES_MAP.catppuccin,
 };
 
+const saveConfig = (config: Config) => {
+  if (!fs.existsSync(CONFIG_DIR)) {
+    fs.mkdirSync(CONFIG_DIR, { recursive: true });
+  }
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+};
+
 const loadConfig = async () => {
   try {
     if (!fs.existsSync(CONFIG_PATH)) {
@@ -38,7 +45,7 @@ const loadConfig = async () => {
 
     return { config, loggedIn: true };
   } catch {
-    CONFIG.save(DEFAULT_CONFIG);
+    saveConfig(DEFAULT_CONFIG);
 
     return { config: DEFAULT_CONFIG, loggedIn: false };
   }
@@ -84,12 +91,7 @@ export const CONFIG = {
   isLoggedIn() {
     return _config.loggedIn;
   },
-  save(config: Config) {
-    if (!fs.existsSync(CONFIG_DIR)) {
-      fs.mkdirSync(CONFIG_DIR, { recursive: true });
-    }
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
-  },
+  save: saveConfig,
   async reload() {
     _config = await loadConfig();
   },

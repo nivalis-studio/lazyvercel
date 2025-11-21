@@ -62,7 +62,7 @@ export const ScrollSelect = ({
   }, [hoveredIdx, rows.length]);
 
   useKeyboard(key => {
-    if (!focused) {
+    if (!focused || rows.length === 0) {
       return;
     }
 

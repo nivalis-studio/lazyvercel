@@ -10,7 +10,9 @@ import { getBranch, getCreatedAt } from '@/lib/extract-deploy-details';
 import { DeploymentDetails, DeploymentLogs } from './deployment-details';
 import type { Deployment } from '@/types/vercel-sdk';
 
-const getBranchesList = (deployments: Array<Deployment>) => {
+const getBranchesList = (
+  deployments: Array<Deployment>,
+): Array<[string, Deployment]> => {
   const map = new Map<string, Deployment>();
   let lastDeployment: Deployment | undefined;
 
@@ -25,7 +27,7 @@ const getBranchesList = (deployments: Array<Deployment>) => {
 
     const latest = map.get(branch);
 
-    if (!lastDeployment || createdAt < getCreatedAt(deployment)) {
+    if (!lastDeployment || createdAt > getCreatedAt(lastDeployment)) {
       lastDeployment = deployment;
     }
 
@@ -39,10 +41,11 @@ const getBranchesList = (deployments: Array<Deployment>) => {
       getCreatedAt(depB) - getCreatedAt(depA) || bA.localeCompare(bB),
   );
 
-  // biome-ignore lint/style/noNonNullAssertion: .
-  return [[DEFAULT_BRANCH, lastDeployment!], ...sortedBranches] as Array<
-    [string, Deployment]
-  >;
+  if (!lastDeployment) {
+    return sortedBranches;
+  }
+
+  return [[DEFAULT_BRANCH, lastDeployment], ...sortedBranches];
 };
 
 export const ProjectDashboard = () => {

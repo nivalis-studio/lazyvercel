@@ -63,5 +63,8 @@ export function getTimeAgo(time_: string | number | Date, opts?: Opts): string {
     return `${v}${cycle}`;
   }
 
-  return `${v === 1 ? (amt === hours ? 'an' : 'a') : v} ${cycle}${v > 1 ? 's' : ''} ago`;
+  return `${
+    // biome-ignore lint/style/noNestedTernary: simpler
+    v === 1 ? (amt === hours ? 'an' : 'a') : v
+  } ${cycle}${v > 1 ? 's' : ''} ago`;
 }

@@ -157,6 +157,9 @@ export const DeploymentLogs = ({
   });
 
   useEffect(() => {
+    setLogs([]);
+    setIsLoadingLogs(true);
+
     const isBuilding =
       deployment.readyState === 'BUILDING' ||
       deployment.readyState === 'INITIALIZING' ||
@@ -165,6 +168,9 @@ export const DeploymentLogs = ({
       deployment.state === 'INITIALIZING' ||
       deployment.state === 'QUEUED';
 
+    let cancelled: true | false = false;
+
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: okay-ish
     const fetchLogs = async () => {
       try {
         const vercel = CONFIG.getVercel();
@@ -175,16 +181,26 @@ export const DeploymentLogs = ({
           limit: -1,
         });
 
+        if (cancelled) {
+          return;
+        }
+
         const events = Array.isArray(response) ? response : [];
         setLogs(events as Array<LogEvent>);
         setIsLoadingLogs(false);
       } catch (error) {
-        console.error('Failed to fetch logs:', error);
-        setIsLoadingLogs(false);
+        if (!cancelled) {
+          console.error('Failed to fetch logs:', error);
+          setIsLoadingLogs(false);
+        }
       }
     };
 
     fetchLogs().catch(console.error);
+
+    return () => {
+      cancelled = true;
+    };
   }, [deployment.uid, deployment.readyState, deployment.state, teamId]);
 
   return (
