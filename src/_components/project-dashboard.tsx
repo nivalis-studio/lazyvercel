@@ -7,7 +7,8 @@ import { DEFAULT_BRANCH } from '@/constants';
 import { useCtx } from '@/ctx';
 import { useDeployments } from '@/hooks/use-deployments';
 import { getBranch, getCreatedAt } from '@/lib/extract-deploy-details';
-import { DeploymentDetails, DeploymentLogs } from './deployment-details';
+import { DeploymentDetails } from './deployment-details';
+import { DeploymentLogs } from './deployment-logs';
 import type { Deployment } from '@/types/vercel-sdk';
 
 const getBranchesList = (

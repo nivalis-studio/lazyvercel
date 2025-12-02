@@ -1,4 +1,5 @@
 import { CONFIG } from './config';
+import type { Deployment } from '@/types/vercel-sdk';
 
 const MAX_DEPLOYMENTS = 150;
 
@@ -16,3 +17,11 @@ export const fetchProjectDeployments = async (
 
   return data.deployments;
 };
+
+export const isDeploymentBuilding = (deployment: Deployment) =>
+  deployment.readyState === 'BUILDING' ||
+  deployment.readyState === 'INITIALIZING' ||
+  deployment.readyState === 'QUEUED' ||
+  deployment.state === 'BUILDING' ||
+  deployment.state === 'INITIALIZING' ||
+  deployment.state === 'QUEUED';
