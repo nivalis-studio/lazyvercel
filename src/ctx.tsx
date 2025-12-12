@@ -8,11 +8,18 @@ import {
   useState,
 } from 'react';
 import { CommandPanelModal } from '@/_components/command-panel';
+import {
+  MissingProjectId,
+  MissingProjectPath,
+} from '@/_components/missing-project';
 import { getThemeColor, THEMES_MAP, type ThemeName } from '@/lib/colors';
 import { CONFIG } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
 import { ProjectDashboard } from './_components/project-dashboard';
-import { getCurrentProjectData } from './lib/current-project';
+import {
+  getCurrentProjectData,
+  ProjectConfigError,
+} from './lib/current-project';
 import type { CliRenderer } from '@opentui/core';
 import type { Ctx } from '@/types/ctx';
 import type { Projects } from '@/types/vercel-sdk';
@@ -20,14 +27,20 @@ import type { Modal } from './types/modal';
 
 const ctx = createContext<Ctx | null>(null);
 
-export const CtxProvider = ({
+const CtxProviderInner = ({
   children,
   renderer,
-}: PropsWithChildren<{ renderer: CliRenderer }>) => {
+  projectId_,
+  teamId,
+}: PropsWithChildren<{
+  renderer: CliRenderer;
+  projectId_: string;
+  teamId: string;
+}>) => {
   const [theme, setTheme] = useState(CONFIG.getTheme());
   const getColor = getThemeColor(theme);
   renderer.setBackgroundColor(getColor('background'));
-  const { projectId: projectId_, teamId } = getCurrentProjectData();
+
   const [content, setContent] = useState(<ProjectDashboard />);
   const [modal, setModal] = useState<Modal | null>(null);
   const [projectId, setProjectId] = useState(projectId_);
@@ -74,8 +87,7 @@ export const CtxProvider = ({
     error,
     getColor,
     setTheme: onSetTheme,
-    // biome-ignore lint/style/noNonNullAssertion: Simpler typings, since in app we throw on undefined
-    project: (projects ?? []).find(p => p.id === projectId)!,
+    project: (projects ?? []).find(p => p.id === projectId) ?? null,
     theme,
   } satisfies Ctx;
 
@@ -100,6 +112,36 @@ export const CtxProvider = ({
   });
 
   return <ctx.Provider value={ctx_}>{children}</ctx.Provider>;
+};
+
+export const CtxProvider = ({
+  children,
+  renderer,
+}: PropsWithChildren<{ renderer: CliRenderer }>) => {
+  let projectData: { projectId: string; teamId: string } | null = null;
+  let projectError: Error | null = null;
+  try {
+    projectData = getCurrentProjectData();
+  } catch (err) {
+    projectError = err instanceof Error ? err : new Error(String(err));
+  }
+
+  if (!projectData) {
+    const isInvalidJson =
+      projectError instanceof ProjectConfigError &&
+      projectError.code === 'invalid_json';
+    return isInvalidJson ? <MissingProjectId /> : <MissingProjectPath />;
+  }
+
+  return (
+    <CtxProviderInner
+      projectId_={projectData.projectId}
+      renderer={renderer}
+      teamId={projectData.teamId}
+    >
+      {children}
+    </CtxProviderInner>
+  );
 };
 
 export const useCtx = () => {

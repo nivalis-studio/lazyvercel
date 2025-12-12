@@ -49,9 +49,14 @@ const getBranchesList = (
   return [[DEFAULT_BRANCH, lastDeployment], ...sortedBranches];
 };
 
-export const ProjectDashboard = () => {
-  const { project, modal } = useCtx();
-  const { isLoading, deployments } = useDeployments(project.id);
+const ProjectDashboardInner = ({
+  projectId,
+  modal,
+}: {
+  projectId: string;
+  modal: unknown;
+}) => {
+  const { isLoading, deployments } = useDeployments(projectId);
   const [selectedBranch, setSelectedBranch] = useState<string>(DEFAULT_BRANCH);
   const [selectedDeployment, setSelectedDeployment] =
     useState<Deployment | null>(null);
@@ -135,4 +140,14 @@ export const ProjectDashboard = () => {
       )}
     </>
   );
+};
+
+export const ProjectDashboard = () => {
+  const { project, modal } = useCtx();
+
+  if (!project) {
+    return null;
+  }
+
+  return <ProjectDashboardInner modal={modal} projectId={project.id} />;
 };

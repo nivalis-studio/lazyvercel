@@ -12,26 +12,40 @@ const projectDataSchema = z
 
 export type ProjectConfig = z.infer<typeof projectDataSchema>;
 
-export const getCurrentProjectData = () => {
+export class ProjectConfigError extends Error {
+  code: 'missing_path' | 'invalid_json';
+
+  constructor(
+    code: ProjectConfigError['code'],
+    message: string,
+    cause?: unknown,
+  ) {
+    super(message, cause ? { cause } : undefined);
+    this.name = 'ProjectConfigError';
+    this.code = code;
+  }
+}
+
+export const getCurrentProjectData = (): ProjectConfig => {
   let content: string;
 
   try {
     content = fs.readFileSync(PROJECT_CONFIG_PATH, 'utf8');
   } catch (error) {
-    throw new Error(
+    throw new ProjectConfigError(
+      'missing_path',
       'Could not read the project config. Try running `vercel link`',
-      { cause: error },
+      error,
     );
   }
 
   try {
-    const projectConfig = projectDataSchema.parse(JSON.parse(content));
-
-    return projectConfig;
+    return projectDataSchema.parse(JSON.parse(content));
   } catch (error) {
-    throw new Error(
+    throw new ProjectConfigError(
+      'invalid_json',
       'Error while parsing the project config. Try running `vercel link`',
-      { cause: error },
+      error,
     );
   }
 };

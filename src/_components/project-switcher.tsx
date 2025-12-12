@@ -56,5 +56,5 @@ const ProjectSwitcher = () => {
 };
 export const ProjectSwitcherModal: Modal = {
   children: ProjectSwitcher,
-  key: 'theme-switcher',
+  key: 'project-switcher',
 } as const;

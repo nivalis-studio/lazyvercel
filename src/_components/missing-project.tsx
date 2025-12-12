@@ -51,3 +51,37 @@ export const LoadingDeploymentsError = () => (
     </box>
   </box>
 );
+
+export const NoProjectsFound = () => (
+  <box alignItems='center' flexGrow={1} justifyContent='center'>
+    <box flexDirection='column' gap={1} padding={1}>
+      <ascii-font font='tiny' text='No projects' />
+      <text attributes={TextAttributes.DIM}>
+        Vercel returned an empty project list for this team.
+      </text>
+      <text attributes={TextAttributes.DIM}>
+        Check your token scope, or run `vercel link` in the right workspace.
+      </text>
+      <text attributes={TextAttributes.DIM}>
+        Tip: press Ctrl+R to retry fetching projects.
+      </text>
+    </box>
+  </box>
+);
+
+export const NoProjectSelected = () => (
+  <box alignItems='center' flexGrow={1} justifyContent='center'>
+    <box flexDirection='column' gap={1} padding={1}>
+      <ascii-font font='tiny' text='Pick a project' />
+      <text attributes={TextAttributes.DIM}>
+        Your saved project id is not in the fetched project list.
+      </text>
+      <text attributes={TextAttributes.DIM}>
+        Press Ctrl+G to open the project switcher.
+      </text>
+      <text attributes={TextAttributes.DIM}>
+        If this keeps happening, re-run `vercel link` for this repo.
+      </text>
+    </box>
+  </box>
+);
