@@ -1,6 +1,7 @@
 import { useKeyboard } from '@opentui/react';
 import { useState } from 'react';
 import { QUITTING_KEYS } from '@/constants';
+import { gracefulExit } from '@/exit';
 import type { CliRenderer } from '@opentui/core';
 
 type Props = {
@@ -51,7 +52,7 @@ export const useShortcuts = ({ renderer, enabled = true }: Props) => {
     }
 
     if (key.name === 'escape' || key.name === 'q') {
-      process.exit(0);
+      gracefulExit(0, renderer);
     }
   });
 

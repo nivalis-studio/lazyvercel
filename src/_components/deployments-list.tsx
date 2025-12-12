@@ -1,5 +1,6 @@
 import { useKeyboard } from '@opentui/react';
 import { QUITTING_KEYS } from '@/constants';
+import { gracefulExit } from '@/exit';
 import { ScrollSelect, type ScrollSelectProps } from './scroll-select';
 import { DeploymentListHeader } from './table/header';
 import { DeploymentListRow } from './table/rows';
@@ -22,7 +23,7 @@ export const DeploymentsList = ({
     }
 
     if (QUITTING_KEYS.includes(key.name)) {
-      process.exit(0);
+      gracefulExit(0);
     }
   });
 

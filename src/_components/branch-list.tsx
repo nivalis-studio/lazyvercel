@@ -6,6 +6,7 @@ import {
 } from '@/_components/scroll-select';
 import { DEFAULT_BRANCH, QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
+import { gracefulExit } from '@/exit';
 import { getCreatedAt, getStatusInfo } from '@/lib/extract-deploy-details';
 import { getTimeAgo } from '@/lib/time-ago';
 import type { Deployment } from '@/types/vercel-sdk';
@@ -47,7 +48,7 @@ export const BranchList = ({
     }
 
     if (QUITTING_KEYS.includes(key.name)) {
-      process.exit(0);
+      gracefulExit(0);
     }
   });
 
