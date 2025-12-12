@@ -13,7 +13,7 @@ export type Ctx = {
   setProjectId: (projectId: string) => void;
   projects: Projects | null;
   refreshProjects: () => Promise<void>;
-  project: Project;
+  project: Project | null;
   teamId: string;
   getColor: (color: keyof Theme['theme']) => string;
   theme: Theme;
