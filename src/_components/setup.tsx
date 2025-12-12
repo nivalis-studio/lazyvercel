@@ -7,7 +7,7 @@ type Props = { onComplete: () => void };
 export const Setup = ({ onComplete }: Props) => {
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
-  const config = CONFIG.get_uncheked();
+  const config = CONFIG.getUnchecked();
   const getColor = getThemeColor(CONFIG.getTheme());
 
   const handleSave = async (token_: string) => {
