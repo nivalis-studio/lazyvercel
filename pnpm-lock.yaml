@@ -51,6 +51,9 @@ importers:
       '@types/node':
         specifier: 22.2.0
         version: 22.2.0
+      '@types/react':
+        specifier: ^19.2.7
+        version: 19.2.7
       lefthook:
         specifier: 2.0.4
         version: 2.0.4
@@ -385,6 +388,9 @@ packages:
   '@types/node@22.2.0':
     resolution: {integrity: sha512-bm6EG6/pCpkxDf/0gDNDdtDILMOHgaQBVOJGdwsqClnxA3xL6jtMv76rLBc006RVMWbmaf0xbmom4Z/5o2nRkQ==}
 
+  '@types/react@19.2.7':
+    resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
+
   '@vercel/sdk@1.17.3':
     resolution: {integrity: sha512-JWlhccnlgUwFdWOT2Sj805epLdymISsaHhnSKOcIzZCL3aRWqnut8FGYmrgl+Cc8B5KPdZX3i9QhCIrjmGDWkw==}
     hasBin: true
@@ -578,6 +584,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
   dargs@8.1.0:
     resolution: {integrity: sha512-wAV9QHOsNbwnWdNW2FYvE1P56wtgSbM+3SZcdGiWQILwVjACCXDCI3Ai8QlCjMDB8YK5zySiXZYBiwGmNY3lnw==}
@@ -1853,6 +1862,10 @@ snapshots:
     dependencies:
       undici-types: 6.13.0
 
+  '@types/react@19.2.7':
+    dependencies:
+      csstype: 3.2.3
+
   '@vercel/sdk@1.17.3':
     dependencies:
       '@modelcontextprotocol/sdk': 1.9.0
@@ -2047,6 +2060,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  csstype@3.2.3: {}
 
   dargs@8.1.0: {}
 
