@@ -2,7 +2,50 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Bun from 'bun';
 import { cac } from 'cac';
+
+const aliasRegex = /^@\//;
+
+const registerPathAliases = () => {
+  if (typeof Bun === 'undefined' || !Bun.plugin) {
+    return;
+  }
+
+  const globalAny = globalThis as unknown as {
+    __lazyvercelAliasesRegistered?: boolean;
+  };
+
+  if (globalAny.__lazyvercelAliasesRegistered) {
+    return;
+  }
+  globalAny.__lazyvercelAliasesRegistered = true;
+
+  const distRoot = path.dirname(fileURLToPath(import.meta.url));
+
+  Bun.plugin({
+    name: 'lazyvercel-tsconfig-paths',
+    setup(build) {
+      build.onResolve({ filter: aliasRegex }, args => {
+        const subpath = args.path.slice(2);
+
+        const direct = path.join(distRoot, `${subpath}.js`);
+        if (fs.existsSync(direct)) {
+          return { path: direct };
+        }
+
+        const index = path.join(distRoot, subpath, 'index.js');
+        if (fs.existsSync(index)) {
+          return { path: index };
+        }
+
+        return { path: direct };
+      });
+    },
+  });
+};
+
+registerPathAliases();
 
 type CliOptions = {
   cwd?: string;
