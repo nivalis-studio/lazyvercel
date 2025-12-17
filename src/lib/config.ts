@@ -37,6 +37,7 @@ const backupCorruptConfig = (content: string) => {
     fs.renameSync(CONFIG_PATH, backupPath);
     fs.writeFileSync(backupPath, content, 'utf8');
   } catch {
+    0;
   }
 };
 
