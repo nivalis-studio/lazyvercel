@@ -72,6 +72,8 @@ const startUi = async () => {
   const { ExitProvider, gracefulExit } = await import('@/exit');
   const { CONFIG } = await import('@/lib/config');
 
+  await CONFIG.init();
+
   const renderer = await createCliRenderer();
 
   process.on('unhandledRejection', reason => {
@@ -156,11 +158,13 @@ cli.on('command:*', () => {
 cli.help();
 cli.version(readPackageVersion(), '-v, --version');
 
-try {
+const run = async () => {
   cli.parse(process.argv, { run: false });
   await cli.runMatchedCommand();
-} catch (error) {
+};
+
+run().catch(error => {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message);
   process.exit(1);
-}
+});

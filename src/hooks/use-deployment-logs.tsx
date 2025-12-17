@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useCtx } from '@/ctx';
 import { CONFIG } from '@/lib/config';
@@ -23,7 +23,7 @@ export const useDeploymentLogs = (deployment: Deployment) => {
   const { bearerToken } = CONFIG.get();
   const isLive = isDeploymentBuilding(deployment);
 
-  const fetchFiniteLogs = async () => {
+  const fetchFiniteLogs = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({
       follow: '0',
@@ -51,35 +51,38 @@ export const useDeploymentLogs = (deployment: Deployment) => {
 
     setLogs(parsed);
     setLoading(false);
-  };
+  }, [bearerToken, deployment.uid, teamId]);
 
-  const fetchLiveLogs = async (controller: AbortController) => {
-    setLoading(true);
-    const params = new URLSearchParams({
-      follow: '1',
-      limit: '-1',
-      teamId,
-    });
+  const fetchLiveLogs = useCallback(
+    async (controller: AbortController) => {
+      setLoading(true);
+      const params = new URLSearchParams({
+        follow: '1',
+        limit: '-1',
+        teamId,
+      });
 
-    for await (const event of getStreamObjects({
-      url: `https://api.vercel.com/v3/deployments/${deployment.uid}/events?${params.toString()}`,
-      options: {
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          Accept: 'application/json',
+      for await (const event of getStreamObjects({
+        url: `https://api.vercel.com/v3/deployments/${deployment.uid}/events?${params.toString()}`,
+        options: {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            Accept: 'application/json',
+          },
+          signal: controller.signal,
         },
-        signal: controller.signal,
-      },
-      schema: logEventSchema,
-    })) {
-      if (!event) {
-        return;
-      }
+        schema: logEventSchema,
+      })) {
+        if (!event) {
+          return;
+        }
 
-      setLogs(prev => [...prev, event]);
-      setLoading(false);
-    }
-  };
+        setLogs(prev => [...prev, event]);
+        setLoading(false);
+      }
+    },
+    [bearerToken, deployment.uid, teamId],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -92,7 +95,7 @@ export const useDeploymentLogs = (deployment: Deployment) => {
     return () => {
       controller.abort();
     };
-  }, [isLive]);
+  }, [isLive, fetchFiniteLogs, fetchLiveLogs]);
 
   return { logs, loading };
 };

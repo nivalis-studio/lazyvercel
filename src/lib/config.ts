@@ -17,6 +17,11 @@ export type Config = z.infer<typeof configSchema>;
 const CONFIG_DIR = path.join(os.homedir(), '.config', 'lazyvercel');
 const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
 
+type LoadedConfig = {
+  config: Config;
+  loggedIn: boolean;
+};
+
 const DEFAULT_CONFIG: Config = {
   bearerToken: '',
   theme: 'catppuccin',
@@ -41,7 +46,7 @@ const backupCorruptConfig = (content: string) => {
   }
 };
 
-const loadConfig = async () => {
+const loadConfig = async (): Promise<LoadedConfig> => {
   if (!fs.existsSync(CONFIG_PATH)) {
     saveConfig(DEFAULT_CONFIG);
     return { config: DEFAULT_CONFIG, loggedIn: false };
@@ -90,9 +95,23 @@ export const validateToken = async (
   }
 };
 
-let _config = await loadConfig();
+let _config: LoadedConfig = { config: DEFAULT_CONFIG, loggedIn: false };
+let _initPromise: Promise<void> | undefined;
+
+const init = () => {
+  if (_initPromise) {
+    return _initPromise;
+  }
+
+  _initPromise = loadConfig().then(result => {
+    _config = result;
+  });
+
+  return _initPromise;
+};
 
 export const CONFIG = {
+  init,
   get() {
     if (!_config.loggedIn) {
       throw new Error('Invalid or expired bearer token');
@@ -122,5 +141,6 @@ export const CONFIG = {
   save: saveConfig,
   async reload() {
     _config = await loadConfig();
+    _initPromise = Promise.resolve();
   },
 };

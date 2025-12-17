@@ -25,8 +25,9 @@
 		"lint": "biome check",
 		"lint:fix": "biome check --write",
 		"test": "bun test",
-		"build": "zshy",
-		"prepack": "zshy",
+		"copy:themes": "node -e \"const fs=require('node:fs'); fs.cpSync('src/theme','dist/theme',{recursive:true});\"",
+		"build": "zshy && pnpm run copy:themes",
+		"prepack": "pnpm run build",
 		"prepare": "lefthook install",
 		"ts": "tsc --noEmit --incremental"
 	},
@@ -34,7 +35,7 @@
 		"@opentui/core": "0.1.47",
 		"@opentui/react": "0.1.47",
 		"@vercel/sdk": "1.17.3",
-		"cac": "^6.7.14",
+		"cac": "6.7.14",
 		"open": "11.0.0",
 		"react": "19.2.0",
 		"zod": "4.1.12"

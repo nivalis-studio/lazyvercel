@@ -1,7 +1,6 @@
 import { TextAttributes } from '@opentui/core';
 import { Component, type ReactNode } from 'react';
-import { getThemeColor, type Theme } from '@/lib/colors';
-import themeJSON from '@/theme/catppuccin.json' with { type: 'json' };
+import { getThemeColor, THEMES_MAP, type Theme } from '@/lib/colors';
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -21,7 +20,7 @@ class ErrorBoundary_ extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error, theme: themeJSON };
+    return { hasError: true, error, theme: THEMES_MAP.catppuccin };
   }
 
   override componentDidCatch(error: Error, errorInfo: unknown) {

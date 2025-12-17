@@ -30,7 +30,7 @@ export async function* getStreamObjects<T>({ schema, url, options }: Props<T>) {
   let buffer = '';
 
   try {
-    while (true) {
+    for (;;) {
       const { value, done } = await reader.read();
 
       if (done) {

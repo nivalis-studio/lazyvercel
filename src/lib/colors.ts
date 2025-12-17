@@ -1,58 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import z from 'zod';
-import aura from '@/theme/aura.json' with { type: 'json' };
-import ayu from '@/theme/ayu.json' with { type: 'json' };
-import catppuccin from '@/theme/catppuccin.json' with { type: 'json' };
-import cobalt2 from '@/theme/cobalt2.json' with { type: 'json' };
-import dracula from '@/theme/dracula.json' with { type: 'json' };
-import everforest from '@/theme/everforest.json' with { type: 'json' };
-import github from '@/theme/github.json' with { type: 'json' };
-import gruvbox from '@/theme/gruvbox.json' with { type: 'json' };
-import kanagawa from '@/theme/kanagawa.json' with { type: 'json' };
-import material from '@/theme/material.json' with { type: 'json' };
-import matrix from '@/theme/matrix.json' with { type: 'json' };
-import monokai from '@/theme/monokai.json' with { type: 'json' };
-import nightowl from '@/theme/nightowl.json' with { type: 'json' };
-import nord from '@/theme/nord.json' with { type: 'json' };
-import oneDark from '@/theme/one-dark.json' with { type: 'json' };
-import opencode from '@/theme/opencode.json' with { type: 'json' };
-import palenight from '@/theme/palenight.json' with { type: 'json' };
-import rosepine from '@/theme/rosepine.json' with { type: 'json' };
-import solarized from '@/theme/solarized.json' with { type: 'json' };
-import synthwave84 from '@/theme/synthwave84.json' with { type: 'json' };
-import tokyonight from '@/theme/tokyonight.json' with { type: 'json' };
-import vesper from '@/theme/vesper.json' with { type: 'json' };
-import zenburn from '@/theme/zenburn.json' with { type: 'json' };
-
-export const THEMES_MAP = {
-  aura,
-  ayu,
-  catppuccin,
-  cobalt2,
-  dracula,
-  everforest,
-  github,
-  gruvbox,
-  kanagawa,
-  material,
-  matrix,
-  monokai,
-  nightowl,
-  nord,
-  oneDark,
-  opencode,
-  palenight,
-  rosepine,
-  solarized,
-  synthwave84,
-  tokyonight,
-  vesper,
-  zenburn,
-} as const;
-
-export const THEMES = [
-  'custom',
-  ...(Object.keys(THEMES_MAP) as Array<keyof typeof THEMES_MAP>),
-] as const;
 
 const THEME_KEYS = [
   'primary',
@@ -115,9 +64,83 @@ export const themeSchema = z.object({
   ),
 });
 
-export const themeNameSchema = z.enum(THEMES);
-
 export type Theme = z.infer<typeof themeSchema>;
+
+const runtimeDirname = (): string => {
+  if (typeof __dirname !== 'undefined') {
+    return __dirname;
+  }
+
+  return path.dirname(fileURLToPath(import.meta.url));
+};
+
+const readThemeJson = (filename: string): unknown => {
+  const dir = runtimeDirname();
+  const filePath = path.join(dir, '..', 'theme', filename);
+  const contents = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(contents) as unknown;
+};
+
+const loadTheme = (filename: string): Theme => {
+  return themeSchema.parse(readThemeJson(filename));
+};
+
+const aura = loadTheme('aura.json');
+const ayu = loadTheme('ayu.json');
+const catppuccin = loadTheme('catppuccin.json');
+const cobalt2 = loadTheme('cobalt2.json');
+const dracula = loadTheme('dracula.json');
+const everforest = loadTheme('everforest.json');
+const github = loadTheme('github.json');
+const gruvbox = loadTheme('gruvbox.json');
+const kanagawa = loadTheme('kanagawa.json');
+const material = loadTheme('material.json');
+const matrix = loadTheme('matrix.json');
+const monokai = loadTheme('monokai.json');
+const nightowl = loadTheme('nightowl.json');
+const nord = loadTheme('nord.json');
+const oneDark = loadTheme('one-dark.json');
+const opencode = loadTheme('opencode.json');
+const palenight = loadTheme('palenight.json');
+const rosepine = loadTheme('rosepine.json');
+const solarized = loadTheme('solarized.json');
+const synthwave84 = loadTheme('synthwave84.json');
+const tokyonight = loadTheme('tokyonight.json');
+const vesper = loadTheme('vesper.json');
+const zenburn = loadTheme('zenburn.json');
+
+export const THEMES_MAP = {
+  aura,
+  ayu,
+  catppuccin,
+  cobalt2,
+  dracula,
+  everforest,
+  github,
+  gruvbox,
+  kanagawa,
+  material,
+  matrix,
+  monokai,
+  nightowl,
+  nord,
+  oneDark,
+  opencode,
+  palenight,
+  rosepine,
+  solarized,
+  synthwave84,
+  tokyonight,
+  vesper,
+  zenburn,
+} as const;
+
+export const THEMES = [
+  'custom',
+  ...(Object.keys(THEMES_MAP) as Array<keyof typeof THEMES_MAP>),
+] as const;
+
+export const themeNameSchema = z.enum(THEMES);
 
 export type ThemeName = (typeof THEMES)[number];
 
