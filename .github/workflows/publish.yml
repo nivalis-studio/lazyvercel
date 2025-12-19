@@ -27,4 +27,7 @@ jobs:
         run: bun run build
 
       - name: Publish
+        env:
+          # bun uses NPM_CONFIG_TOKEN for npm registry auth
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN }}
         run: bun publish --access public --registry=https://registry.npmjs.org
