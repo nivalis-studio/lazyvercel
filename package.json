@@ -18,7 +18,7 @@
 	},
 	"keywords": ["vercel", "tui", "terminal", "deployments", "cli"],
 	"bin": {
-		"lazyvercel": "./src/index.tsx"
+		"lazyvercel": "./dist/index.js"
 	},
 	"scripts": {
 		"dev": "bun run --watch src/index.tsx",
@@ -54,7 +54,7 @@
 		"lefthook": "2.0.4",
 		"typescript": "5.9.3"
 	},
-	"files": ["src"],
-	"main": "./src/index.tsx",
-	"module": "./src/index.tsx"
+	"files": ["dist"],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js"
 }
