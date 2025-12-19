@@ -4,7 +4,7 @@
 	"type": "module",
 	"version": "0.9.3",
 	"license": "MIT",
-	"packageManager": "pnpm@10.23.0",
+	"packageManager": "bun@1.3.4",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -18,16 +18,15 @@
 	},
 	"keywords": ["vercel", "tui", "terminal", "deployments", "cli"],
 	"bin": {
-		"lazyvercel": "dist/index.js"
+		"lazyvercel": "./src/index.tsx"
 	},
 	"scripts": {
 		"dev": "bun run --watch src/index.tsx",
 		"lint": "biome check",
 		"lint:fix": "biome check --write",
 		"test": "bun test",
-		"copy:themes": "node -e \"const fs=require('node:fs'); fs.cpSync('src/theme','dist/theme',{recursive:true});\"",
-		"build": "zshy && pnpm run copy:themes",
-		"prepack": "pnpm run build",
+		"build": "bun build ./src/index.tsx --outdir dist --target bun",
+		"prepack": "bun run build",
 		"prepare": "lefthook install",
 		"ts": "tsc --noEmit --incremental"
 	},
@@ -53,19 +52,9 @@
 		"@types/node": "22.2.0",
 		"@types/react": "^19.2.7",
 		"lefthook": "2.0.4",
-		"typescript": "5.9.3",
-		"zshy": "0.6.0"
+		"typescript": "5.9.3"
 	},
-	"zshy": "./src/index.tsx",
-	"files": ["dist"],
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.cts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.cts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		}
-	}
+	"files": ["src"],
+	"main": "./src/index.tsx",
+	"module": "./src/index.tsx"
 }

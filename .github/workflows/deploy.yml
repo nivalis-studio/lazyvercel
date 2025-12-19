@@ -6,22 +6,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          registry-url: https://registry.npmjs.org
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
 
-      - uses: pnpm/action-setup@v4
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: bun install
 
-      # Ensure npm 11.5.1 or later is installed
-      - name: Ensure npm supports trusted publishing
-        run: npm install -g npm@latest
+      - name: Check build
+        run: bun run build
 
-      - name: Build
-        run: pnpm run build
-
-      - name: Publish to npm
-        run: pnpm dlx pkg-pr-new publish
+      - name: Publish
+        run: bunx pkg-pr-new publish
