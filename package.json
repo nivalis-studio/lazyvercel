@@ -27,7 +27,7 @@
 		"test": "bun test",
 		"build": "bun build ./src/index.tsx --outdir dist --target bun",
 		"prepack": "bun run build",
-		"prepare": "lefthook install",
+		"prepare": "bunx lefthook install",
 		"ts": "tsc --noEmit --incremental"
 	},
 	"dependencies": {
