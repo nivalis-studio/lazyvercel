@@ -65,6 +65,25 @@ export async function* getStreamObjects<T>({ schema, url, options }: Props<T>) {
         yield parsed.data;
       }
     }
+
+    const tail = buffer.trim();
+    if (!tail) {
+      return;
+    }
+
+    let rawTail: unknown;
+    try {
+      rawTail = JSON.parse(tail);
+    } catch {
+      return;
+    }
+
+    const parsedTail = schema.safeParse(rawTail);
+    if (!parsedTail.success) {
+      return;
+    }
+
+    yield parsedTail.data;
   } catch (err) {
     if ((err as Error)?.name === 'AbortError') {
       return;

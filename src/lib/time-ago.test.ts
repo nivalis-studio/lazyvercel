@@ -11,6 +11,8 @@ test('getTimeAgo (short) formats seconds', () => {
 test('getTimeAgo (long) formats minutes/hours with articles', () => {
   const now = new Date('2020-01-01T02:00:00Z');
   const oneHourAgo = new Date('2020-01-01T01:00:00Z');
+  const oneMinuteAgo = new Date('2020-01-01T01:59:00Z');
 
   expect(getTimeAgo(oneHourAgo, { dateToCompare: now })).toBe('an hour ago');
+  expect(getTimeAgo(oneMinuteAgo, { dateToCompare: now })).toBe('a minute ago');
 });

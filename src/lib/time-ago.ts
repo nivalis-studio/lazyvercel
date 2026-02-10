@@ -51,7 +51,7 @@ export function getTimeAgo(time_: string | number | Date, opts?: Opts): string {
     cycle = short ? 'h' : 'hour';
   } else if (mins > 0) {
     amt = mins;
-    cycle = short ? 'm' : 'minutes';
+    cycle = short ? 'm' : 'minute';
   } else if (secs > 0) {
     amt = secs;
     cycle = short ? 's' : 'second';

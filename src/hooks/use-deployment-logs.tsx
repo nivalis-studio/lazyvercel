@@ -18,39 +18,40 @@ export type LogEvent = z.infer<typeof logEventSchema>;
 export const useDeploymentLogs = (deployment: Deployment) => {
   const [logs, setLogs] = useState<Array<LogEvent>>([]);
   const [loading, setLoading] = useState(false);
-  const { teamId } = useCtx();
+  const { teamId, setLastError } = useCtx();
 
   const { bearerToken } = CONFIG.get();
   const isLive = isDeploymentBuilding(deployment);
 
   const fetchFiniteLogs = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({
-      follow: '0',
-      limit: '-1',
-      teamId,
-    });
+    try {
+      const params = new URLSearchParams({
+        follow: '0',
+        limit: '-1',
+        teamId,
+      });
 
-    const response = await fetch(
-      `https://api.vercel.com/v3/deployments/${deployment.uid}/events?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          Accept: 'application/json',
+      const response = await fetch(
+        `https://api.vercel.com/v3/deployments/${deployment.uid}/events?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            Accept: 'application/json',
+          },
         },
-      },
-    );
+      );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch deployment logs (${response.status})`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch deployment logs (${response.status})`);
+      }
+
+      const body = await response.json();
+      const parsed = z.array(logEventSchema).parse(body);
+      setLogs(parsed);
+    } finally {
+      setLoading(false);
     }
-
-    const body = await response.json();
-
-    const parsed = z.array(logEventSchema).parse(body);
-
-    setLogs(parsed);
-    setLoading(false);
   }, [bearerToken, deployment.uid, teamId]);
 
   const fetchLiveLogs = useCallback(
@@ -61,6 +62,9 @@ export const useDeploymentLogs = (deployment: Deployment) => {
         limit: '-1',
         teamId,
       });
+
+      // Avoid blocking the UI forever when a live stream is connected but idle.
+      setLoading(false);
 
       for await (const event of getStreamObjects({
         url: `https://api.vercel.com/v3/deployments/${deployment.uid}/events?${params.toString()}`,
@@ -74,28 +78,36 @@ export const useDeploymentLogs = (deployment: Deployment) => {
         schema: logEventSchema,
       })) {
         if (!event) {
-          return;
+          continue;
         }
 
         setLogs(prev => [...prev, event]);
-        setLoading(false);
       }
     },
     [bearerToken, deployment.uid, teamId],
   );
 
+  const handleError = useCallback(
+    (err: unknown) => {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setLastError(error);
+      setLoading(false);
+    },
+    [setLastError],
+  );
+
   useEffect(() => {
     const controller = new AbortController();
     if (isLive) {
-      fetchLiveLogs(controller).catch(console.error);
+      fetchLiveLogs(controller).catch(handleError);
     } else {
-      fetchFiniteLogs().catch(console.error);
+      fetchFiniteLogs().catch(handleError);
     }
 
     return () => {
       controller.abort();
     };
-  }, [isLive, fetchFiniteLogs, fetchLiveLogs]);
+  }, [isLive, fetchFiniteLogs, fetchLiveLogs, handleError]);
 
   return { logs, loading };
 };
