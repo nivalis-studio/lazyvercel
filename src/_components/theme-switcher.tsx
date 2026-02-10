@@ -49,7 +49,7 @@ const ThemeSwitcher = () => {
           <text>{name}</text>
         </box>
       ))}
-      title='Switch project'
+      title='Switch theme'
     />
   );
 };
