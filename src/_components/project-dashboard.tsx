@@ -68,6 +68,14 @@ const ProjectDashboardInner = ({
     return getBranchesList(deployments);
   }, [deployments]);
 
+  // Resolve the selected deployment against the polled list so details and
+  // logs reflect fresh data (e.g. BUILDING -> READY). Fall back to the
+  // snapshot if the deployment ages out of the list.
+  const liveSelectedDeployment = selectedDeployment
+    ? (deployments.find(d => d.uid === selectedDeployment.uid) ??
+      selectedDeployment)
+    : null;
+
   useKeyboard(key => {
     if (key.name === 'left' || key.name === 'h') {
       setFocused(prev => (prev > 0 ? prev - 1 : prev));
@@ -115,16 +123,16 @@ const ProjectDashboardInner = ({
   return (
     <box flexDirection='column' height='100%' width='100%'>
       <box flexDirection='row' flexGrow={1} minHeight={0} width='100%'>
-        {selectedDeployment ? (
+        {liveSelectedDeployment ? (
           <>
             <DeploymentDetails
-              deployment={selectedDeployment}
+              deployment={liveSelectedDeployment}
               focused={isFocused(0)}
               getFocus={() => setFocused(0)}
               onDeploymentUnselect={onDeploymentUnselect}
             />
             <DeploymentLogs
-              deployment={selectedDeployment}
+              deployment={liveSelectedDeployment}
               focused={isFocused(1)}
               getFocus={() => setFocused(1)}
               onDeploymentUnselect={onDeploymentUnselect}
