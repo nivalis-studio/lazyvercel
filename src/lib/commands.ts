@@ -26,7 +26,10 @@ export const COMMANDS: Array<Command> = [
     },
   },
   {
-    keys: [{ name: '?' }],
+    // Kitty-protocol terminals (enabled by default in opentui) report
+    // shift+/ as the base key with the typed '?' only in `sequence`;
+    // legacy parsing yields name '?'. Match both.
+    keys: [{ name: '?' }, { sequence: '?' }],
     label: 'Help',
     action: ctx => {
       ctx.setModal(ctx.modal?.key === HelpModal.key ? null : HelpModal);
