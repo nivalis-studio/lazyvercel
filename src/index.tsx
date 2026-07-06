@@ -112,7 +112,7 @@ const startUi = async () => {
   const { ConfiguredApp } = await import('@/app');
   const { CtxProvider, useCtx } = await import('@/ctx');
   const { ErrorBoundary } = await import('@/error');
-  const { ExitProvider, gracefulExit } = await import('@/exit');
+  const { ExitProvider, fatalExit } = await import('@/exit');
   const { CONFIG } = await import('@/lib/config');
 
   await CONFIG.init();
@@ -120,12 +120,10 @@ const startUi = async () => {
   const renderer = await createCliRenderer();
 
   process.on('unhandledRejection', reason => {
-    console.error('Unhandled rejection:', reason);
-    gracefulExit(1, renderer);
+    fatalExit('Unhandled rejection', reason, renderer);
   });
   process.on('uncaughtException', err => {
-    console.error('Uncaught exception:', err);
-    gracefulExit(1, renderer);
+    fatalExit('Uncaught exception', err, renderer);
   });
 
   const Inner = () => {
