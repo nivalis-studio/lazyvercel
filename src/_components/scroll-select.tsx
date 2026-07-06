@@ -1,5 +1,11 @@
 import { useKeyboard } from '@opentui/react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useCtx } from '@/ctx';
 import type { BoxOptions, ScrollBoxRenderable } from '@opentui/core';
 
@@ -25,13 +31,28 @@ export const ScrollSelect = ({
   const scrollRef = useRef<ScrollBoxRenderable | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState(0);
 
-  const onHover = (idx: number) => {
-    if (onHover_) {
-      onHover_(idx);
+  const onHover = useCallback(
+    (idx: number) => {
+      if (onHover_) {
+        onHover_(idx);
+      }
+
+      setHoveredIdx(idx);
+    },
+    [onHover_],
+  );
+
+  useEffect(() => {
+    // keep the hovered row in range when the row list shrinks
+    if (rows.length === 0) {
+      setHoveredIdx(0);
+      return;
     }
 
-    setHoveredIdx(idx);
-  };
+    if (hoveredIdx >= rows.length) {
+      onHover(rows.length - 1);
+    }
+  }, [hoveredIdx, rows.length, onHover]);
 
   useEffect(() => {
     const scroll = scrollRef.current;
