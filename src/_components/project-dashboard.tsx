@@ -176,5 +176,11 @@ export const ProjectDashboard = () => {
     return null;
   }
 
-  return <ProjectDashboardInner modal={modal} projectId={project.id} />;
+  return (
+    <ProjectDashboardInner
+      key={project.id}
+      modal={modal}
+      projectId={project.id}
+    />
+  );
 };
