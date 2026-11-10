@@ -1,4 +1,4 @@
-import { TextAttributes } from '@opentui/core';
+import { decodePasteBytes, TextAttributes } from '@opentui/core';
 import { useState } from 'react';
 import { getThemeColor } from '@/lib/colors';
 import { CONFIG, checkToken } from '@/lib/config';
@@ -92,9 +92,11 @@ export const Setup = ({ onComplete }: Props) => {
                 focused
                 onInput={setValue}
                 onPaste={event => {
-                  setValue(event.text);
+                  setValue(decodePasteBytes(event.bytes));
                 }}
-                onSubmit={handleSave}
+                // opentui types onSubmit as both (SubmitEvent) and (value: string);
+                // Input emits the value string.
+                onSubmit={(submitted: unknown) => handleSave(String(submitted))}
                 placeholder='Paste your Vercel token here...'
                 value={value}
               />
