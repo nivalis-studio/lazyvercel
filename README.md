@@ -73,17 +73,18 @@ The CLI detects the current project from `.vercel/project.json`. When multiple p
 
 **Branch list**
 - `↑ / ↓` or `j / k` – Move selection
+- `TAB / Shift+TAB` – Cycle the active branch filter
 - `o` – Open the branch in the Vercel dashboard
 - `q / esc / backspace` – Exit to the terminal
 
 **Deployments list**
 - `TAB / Shift+TAB` – Cycle the active branch filter
 - `ENTER` – Drill into deployment details
-- `o` – Open selected deployment in the browser
+- `o` – Open the highlighted deployment in the browser
 - `r` – Force refresh
 
 **Deployment details / logs**
-- `o` – Open deployment URL
+- `o` – Open deployment URL (works in both panes)
 - `q / esc / backspace` – Return to the list
 
 Mouse hover focuses panes and rows; scrolling works in every list.
