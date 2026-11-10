@@ -68,17 +68,24 @@ const loadConfig = async (): Promise<LoadedConfig> => {
     return { config: DEFAULT_CONFIG, loggedIn: false };
   }
 
-  const isValid = config.bearerToken
-    ? await validateToken(config.bearerToken)
-    : false;
+  if (!config.bearerToken) {
+    return { config, loggedIn: false };
+  }
 
-  return { config, loggedIn: isValid };
+  // Unreachable: trust the saved token; dashboard API calls surface their own errors.
+  const status = await checkToken(config.bearerToken);
+  return { config, loggedIn: status !== 'invalid' };
 };
 
-export const validateToken = async (
+export type TokenStatus = 'valid' | 'invalid' | 'unreachable';
+
+const HTTP_UNAUTHORIZED = 401;
+const HTTP_FORBIDDEN = 403;
+
+export const checkToken = async (
   token: string,
   timeoutMs = 10_000,
-): Promise<boolean> => {
+): Promise<TokenStatus> => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -87,9 +94,17 @@ export const validateToken = async (
       headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     });
-    return response.ok;
+    if (response.ok) {
+      return 'valid';
+    }
+    // Only an explicit auth rejection says the token is bad; 5xx/429/etc. do not.
+    return response.status === HTTP_UNAUTHORIZED ||
+      response.status === HTTP_FORBIDDEN
+      ? 'invalid'
+      : 'unreachable';
   } catch {
-    return false;
+    // Offline, DNS failure, or timeout abort.
+    return 'unreachable';
   } finally {
     clearTimeout(timeout);
   }
