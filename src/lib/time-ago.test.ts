@@ -108,3 +108,39 @@ test('getTimeAgo accepts number, Date and ISO string inputs', () => {
     }),
   ).toBe('10s');
 });
+
+test('getTimeAgo returns 0s / just now for a zero difference', () => {
+  const now = new Date('2020-01-01T00:00:00Z');
+
+  expect(getTimeAgo(now, { dateToCompare: now, short: true })).toBe('0s');
+  expect(getTimeAgo(now, { dateToCompare: now })).toBe('just now');
+});
+
+test('getTimeAgo returns 0s / just now for a time in the future', () => {
+  const now = new Date('2020-01-01T00:00:00Z');
+  const inFiveSeconds = new Date('2020-01-01T00:00:05Z');
+  const nextYear = new Date('2021-01-01T00:00:00Z');
+
+  expect(getTimeAgo(inFiveSeconds, { dateToCompare: now, short: true })).toBe(
+    '0s',
+  );
+  expect(getTimeAgo(inFiveSeconds, { dateToCompare: now })).toBe('just now');
+  expect(getTimeAgo(nextYear, { dateToCompare: now, short: true })).toBe('0s');
+  expect(getTimeAgo(nextYear, { dateToCompare: now })).toBe('just now');
+});
+
+test('getTimeAgo returns 0s / just now for a sub-second difference', () => {
+  const now = new Date('2020-01-01T00:00:00.500Z');
+  const then = new Date('2020-01-01T00:00:00Z');
+
+  expect(getTimeAgo(then, { dateToCompare: now, short: true })).toBe('0s');
+  expect(getTimeAgo(then, { dateToCompare: now })).toBe('just now');
+});
+
+test('getTimeAgo still formats exactly one second', () => {
+  const now = new Date('2020-01-01T00:00:01Z');
+  const then = new Date('2020-01-01T00:00:00Z');
+
+  expect(getTimeAgo(then, { dateToCompare: now, short: true })).toBe('1s');
+  expect(getTimeAgo(then, { dateToCompare: now })).toBe('a second ago');
+});

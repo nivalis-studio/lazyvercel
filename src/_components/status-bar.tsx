@@ -1,7 +1,5 @@
-import { useMemo } from 'react';
 import { DEFAULT_BRANCH } from '@/constants';
 import { useCtx } from '@/ctx';
-import { getTimeAgo } from '@/lib/time-ago';
 
 type Props = {
   selectedBranch: string;
@@ -25,13 +23,16 @@ export const StatusBar = ({
   const branchLabel =
     selectedBranch === DEFAULT_BRANCH ? 'all' : selectedBranch || 'all';
 
-  const refreshedLabel = useMemo(() => {
-    if (!lastRefreshedAt) {
-      return 'never';
-    }
-
-    return getTimeAgo(lastRefreshedAt, { short: true });
-  }, [lastRefreshedAt]);
+  // Absolute local time of the last successful refresh: it stops advancing
+  // when polling fails, so stale data is visible without a ticking timer.
+  const refreshedLabel = lastRefreshedAt
+    ? new Date(lastRefreshedAt).toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23',
+      })
+    : 'never';
 
   return (
     <box
