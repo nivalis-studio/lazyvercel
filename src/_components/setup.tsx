@@ -1,7 +1,7 @@
 import { TextAttributes } from '@opentui/core';
 import { useState } from 'react';
 import { getThemeColor } from '@/lib/colors';
-import { CONFIG, validateToken } from '@/lib/config';
+import { CONFIG, checkToken } from '@/lib/config';
 
 type Props = { onComplete: () => void };
 export const Setup = ({ onComplete }: Props) => {
@@ -18,9 +18,16 @@ export const Setup = ({ onComplete }: Props) => {
       return;
     }
 
-    const isValid = await validateToken(token);
+    const status = await checkToken(token);
 
-    if (!isValid) {
+    if (status === 'unreachable') {
+      setError(
+        'Could not reach Vercel. Check your connection and press Enter to retry.',
+      );
+      return;
+    }
+
+    if (status === 'invalid') {
       setError('Invalid or expired token');
       return;
     }
@@ -46,7 +53,9 @@ export const Setup = ({ onComplete }: Props) => {
           <box flexDirection='column' marginBottom={2}>
             <text attributes={TextAttributes.BOLD}>Welcome to Vercel TUI!</text>
             <text attributes={TextAttributes.DIM}>
-              First-time setup required
+              {config.bearerToken
+                ? 'Your saved token was rejected. Enter a new one.'
+                : 'First-time setup required'}
             </text>
           </box>
 

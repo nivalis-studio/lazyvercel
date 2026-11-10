@@ -20,11 +20,38 @@ jobs:
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Check tag matches package.json version
+        run: |
+          expected="v$(bun -p 'require("./package.json").version')"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $expected"
+            exit 1
+          fi
+
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Check typescript
+        run: bun run ts
+
+      - name: Check linter
+        run: bun run lint
+
+      - name: Check tests
+        run: bun run test
 
       - name: Check build
         run: bun run build
+
+      - name: Smoke test built CLI
+        run: |
+          expected="lazyvercel/$(bun -p 'require("./package.json").version') "
+          actual="$(bun dist/index.js --version)"
+          echo "$actual"
+          case "$actual" in
+            "$expected"*) ;;
+            *) echo "::error::Built CLI printed '$actual', expected it to start with '$expected'"; exit 1 ;;
+          esac
 
       - name: Publish
         env:
