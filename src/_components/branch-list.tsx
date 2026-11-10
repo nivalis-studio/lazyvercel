@@ -1,5 +1,4 @@
 import { useKeyboard } from '@opentui/react';
-import open from 'open';
 import {
   ScrollSelect,
   type ScrollSelectProps,
@@ -8,6 +7,7 @@ import { DEFAULT_BRANCH, QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { gracefulExit } from '@/exit';
 import { getCreatedAt, getStatusInfo } from '@/lib/extract-deploy-details';
+import { openUrl } from '@/lib/open-url';
 import { getTimeAgo } from '@/lib/time-ago';
 import type { Deployment } from '@/types/vercel-sdk';
 
@@ -26,7 +26,7 @@ export const BranchList = ({
   onSelectBranch,
   ...props
 }: Props) => {
-  const { getColor, project, teamId, theme } = useCtx();
+  const { getColor, project, setLastError, teamId, theme } = useCtx();
 
   useKeyboard(key => {
     if (!focused) {
@@ -41,12 +41,10 @@ export const BranchList = ({
       let url = `https://vercel.com/${teamId}/${project.name}/`;
 
       if (selectedBranch && selectedBranch !== DEFAULT_BRANCH) {
-        url += `deployments?catchAll=deployments&filterBranch=${selectedBranch}`;
+        url += `deployments?catchAll=deployments&filterBranch=${encodeURIComponent(selectedBranch)}`;
       }
 
-      open(url).catch(error => {
-        console.error('Failed to open URL:', error);
-      });
+      openUrl(url, setLastError);
 
       return;
     }

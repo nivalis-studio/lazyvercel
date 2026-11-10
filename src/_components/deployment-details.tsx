@@ -1,6 +1,5 @@
 import { type ScrollBoxRenderable, TextAttributes } from '@opentui/core';
 import { useKeyboard } from '@opentui/react';
-import open from 'open';
 import { useRef } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
@@ -10,6 +9,7 @@ import {
   getCreatedAt,
   getStatusInfo,
 } from '@/lib/extract-deploy-details';
+import { openUrl } from '@/lib/open-url';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {
@@ -44,14 +44,9 @@ export const DeploymentDetails = ({
     }
 
     if (key.name === 'o') {
-      const url = deployment.url;
-      if (!url) {
-        return;
+      if (deployment.url) {
+        openUrl(deployment.url, ctx.setLastError);
       }
-
-      open(url).catch(error => {
-        console.error('Failed to open URL:', error);
-      });
       return;
     }
   });
