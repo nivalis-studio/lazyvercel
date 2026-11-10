@@ -1,6 +1,9 @@
 import { useKeyboard } from '@opentui/react';
+import { useState } from 'react';
 import { QUITTING_KEYS } from '@/constants';
+import { useCtx } from '@/ctx';
 import { gracefulExit } from '@/exit';
+import { openUrl } from '@/lib/open-url';
 import { ScrollSelect, type ScrollSelectProps } from './scroll-select';
 import { DeploymentListHeader } from './table/header';
 import { DeploymentListRow } from './table/rows';
@@ -17,8 +20,20 @@ export const DeploymentsList = ({
   onDeploymentSelect,
   ...props
 }: Props) => {
+  const { setLastError } = useCtx();
+  const [hoveredIdx, setHoveredIdx] = useState(0);
+
   useKeyboard(key => {
     if (!focused) {
+      return;
+    }
+
+    if (key.name === 'o') {
+      const url = deployments[hoveredIdx]?.url;
+
+      if (url) {
+        openUrl(url, setLastError);
+      }
       return;
     }
 
@@ -36,6 +51,7 @@ export const DeploymentsList = ({
       title='Deployments'
       {...props}
       focused={focused}
+      onHover={setHoveredIdx}
       onSelect={selected => {
         const deployment = deployments[selected];
 

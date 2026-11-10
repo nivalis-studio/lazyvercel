@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { type LogEvent, useDeploymentLogs } from '@/hooks/use-deployment-logs';
+import { openUrl } from '@/lib/open-url';
 import type { Deployment } from '@/types/vercel-sdk';
 
 type Props = {
@@ -20,7 +21,7 @@ export const DeploymentLogs = ({
   onDeploymentUnselect,
   ...props
 }: Props) => {
-  const { getColor } = useCtx();
+  const { getColor, setLastError } = useCtx();
   const scrollRef = useRef<ScrollBoxRenderable | null>(null);
 
   const { logs, loading } = useDeploymentLogs(deployment);
@@ -32,6 +33,14 @@ export const DeploymentLogs = ({
 
     if (QUITTING_KEYS.includes(key.name)) {
       onDeploymentUnselect();
+      return;
+    }
+
+    if (key.name === 'o') {
+      if (deployment.url) {
+        openUrl(deployment.url, setLastError);
+      }
+      return;
     }
   });
 

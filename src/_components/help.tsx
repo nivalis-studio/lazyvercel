@@ -31,7 +31,8 @@ const SECTIONS: Array<[title: string, shortcuts: Array<Shortcut>]> = [
     [
       ['↑ / ↓ or j / k', 'Move selection'],
       ['ENTER / SPACE', 'Select branch / open deployment'],
-      ['o', 'Open branch deployment in browser'],
+      ['TAB / Shift+TAB', 'Cycle branch filter'],
+      ['o', 'Open branch dashboard / deployment URL'],
       ['q / ESC / BACKSPACE', 'Quit'],
     ],
   ],
