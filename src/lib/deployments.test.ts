@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { isDeploymentBuilding } from './deployments';
+import { deploymentsResponseSchema, isDeploymentBuilding } from './deployments';
 import type { Deployment } from '../types/vercel-sdk';
 
 type DeploymentFixture = {
@@ -33,4 +33,37 @@ const CASES: Array<[string, DeploymentFixture, boolean]> = [
 
 test.each(CASES)('isDeploymentBuilding %s', (_name, fields, expected) => {
   expect(isDeploymentBuilding(makeDeployment(fields))).toBe(expected);
+});
+
+test('deploymentsResponseSchema keeps the read fields and tolerates unknown states', () => {
+  const body = {
+    deployments: [
+      {
+        uid: 'dpl_1',
+        url: 'app-git-main.vercel.app',
+        created: 1,
+        createdAt: 2,
+        readyState: 'BLOCKED',
+        target: null,
+        meta: { githubCommitRef: 'main' },
+        name: 'ignored-field',
+      },
+    ],
+    pagination: { count: 1, next: null, prev: null },
+  };
+
+  const [deployment] = deploymentsResponseSchema.parse(body).deployments;
+
+  expect(deployment?.uid).toBe('dpl_1');
+  expect(deployment?.readyState).toBe('BLOCKED');
+  expect(deployment?.target).toBeNull();
+  expect(deployment?.meta?.githubCommitRef).toBe('main');
+});
+
+test('deploymentsResponseSchema rejects a deployment without uid', () => {
+  expect(() =>
+    deploymentsResponseSchema.parse({
+      deployments: [{ url: 'x.vercel.app', created: 1 }],
+    }),
+  ).toThrow();
 });
