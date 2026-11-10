@@ -24,6 +24,13 @@ export function getTimeAgo(time_: string | number | Date, opts?: Opts): string {
   }
 
   const secs = (now - time) / 1000;
+
+  // Zero, negative (clock skew, a timestamp slightly in the future) and
+  // sub-second differences match none of the unit branches below.
+  if (secs < 1) {
+    return short ? '0s' : 'just now';
+  }
+
   const mins = is(60, secs);
   const hours = is(60, mins);
   const days = is(24, hours);
