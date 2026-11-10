@@ -60,11 +60,13 @@ A few tips:
 
 ## Releasing (maintainers)
 
+Releases are published to npm by `.github/workflows/publish.yml` when a `vX.Y.Z` tag is pushed.
+
 1. Ensure `main` is green and up-to-date.
-2. Bump the version via `npm version <patch|minor|major>`.
-3. Run `bun run build` and verify `dist/index.js` is executable (`bun dist/index.js`).
-4. Publish with `bun publish` (or `npm publish`).
-5. Tag the release and draft GitHub release notes summarizing highlights.
+2. Bump the version and tag it: `npm version <patch|minor|major> -m "chore: release v%s"` (creates the `chore: release vX.Y.Z` commit and the `vX.Y.Z` tag).
+3. Push the commit and the tag: `git push --follow-tags`.
+4. Watch the "Publish Package" workflow. It fails if the tag doesn't equal `v` + the `package.json` version, then runs typecheck, lint, tests and build, smoke-tests `dist/index.js`, and publishes.
+5. Draft GitHub release notes summarizing highlights.
 
 ## Documentation-only changes
 
