@@ -103,11 +103,7 @@ The repo uses Lefthook for git hooks (`bun run prepare`) and Biome for formattin
 
 ## Releasing
 
-1. Ensure `bun run lint` and `bun run ts` pass.
-2. Run `bun run build`; verify `dist/index.js` executes via `bun dist/index.js`.
-3. Bump the version (`npm version patch|minor|major`).
-4. Publish with `bun publish` (or `npm publish`).
-5. Create a GitHub release describing the changes.
+Releases are tag-driven: pushing a `vX.Y.Z` tag that matches the `package.json` version runs `.github/workflows/publish.yml`, which checks, builds, smoke-tests and publishes the package. See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing-maintainers) for the maintainer checklist.
 
 ## Troubleshooting
 
