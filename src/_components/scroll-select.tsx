@@ -45,7 +45,7 @@ export const ScrollSelect = ({
   useEffect(() => {
     // keep the hovered row in range when the row list shrinks
     if (rows.length === 0) {
-      setHoveredIdx(0);
+      onHover(0);
       return;
     }
 

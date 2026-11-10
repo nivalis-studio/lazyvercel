@@ -87,6 +87,22 @@ const ProjectDashboardInner = ({
       return;
     }
 
+    if (
+      key.name === 'tab' &&
+      modal === null &&
+      selectedDeployment === null &&
+      branches.length > 0
+    ) {
+      const names = branches.map(([branch]) => branch);
+      const step = key.shift ? -1 : 1;
+
+      setSelectedBranch(prev => {
+        const idx = Math.max(0, names.indexOf(prev));
+        return names[(idx + step + names.length) % names.length] ?? prev;
+      });
+      return;
+    }
+
     // Force refresh (matches README).
     if (key.name === 'r' && modal === null) {
       refresh().catch(err => console.error(err));
