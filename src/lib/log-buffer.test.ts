@@ -1,6 +1,11 @@
 /** biome-ignore-all lint/style/noMagicNumbers: fixture sizes */
 import { expect, test } from 'bun:test';
-import { appendCappedLogs, capLogs, MAX_LOG_LINES } from './log-buffer';
+import {
+  appendCappedLogs,
+  capLogs,
+  MAX_LOG_LINES,
+  omittedLogNotice,
+} from './log-buffer';
 import { parseLogEvents } from './log-events';
 
 const SMALL_CAP = 4;
@@ -106,4 +111,15 @@ test('parsed events over the cap keep the newest lines and their ids', () => {
   ]);
   expect(capped.logs[0]).toBe(events[7]);
   expect(new Set(capped.logs.map(event => event.id)).size).toBe(3);
+});
+
+test('omittedLogNotice is empty until lines are dropped', () => {
+  expect(omittedLogNotice(0)).toBeNull();
+  expect(omittedLogNotice(-1)).toBeNull();
+});
+
+test('omittedLogNotice names the cap and how many lines were dropped', () => {
+  expect(omittedLogNotice(12)).toBe(
+    'Showing the last 5,000 lines (12 earlier omitted)',
+  );
 });

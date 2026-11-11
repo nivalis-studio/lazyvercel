@@ -4,7 +4,7 @@ import { memo, useRef } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { type LogEvent, useDeploymentLogs } from '@/hooks/use-deployment-logs';
-import { MAX_LOG_LINES } from '@/lib/log-buffer';
+import { omittedLogNotice } from '@/lib/log-buffer';
 import { formatLogTimestamp } from '@/lib/log-events';
 import { openUrl } from '@/lib/open-url';
 import type { Ctx } from '@/types/ctx';
@@ -37,8 +37,6 @@ const LogLine = memo(function LogLineView({ log, getColor }: LogLineProps) {
     </box>
   );
 });
-
-const formatCount = (count: number): string => count.toLocaleString('en-US');
 
 type Props = {
   deployment: Deployment;
@@ -77,10 +75,7 @@ export const DeploymentLogs = ({
     }
   });
 
-  const omittedNotice =
-    droppedCount > 0
-      ? `Showing the last ${formatCount(MAX_LOG_LINES)} lines (${formatCount(droppedCount)} earlier omitted)`
-      : null;
+  const omittedNotice = omittedLogNotice(droppedCount);
 
   return (
     <box

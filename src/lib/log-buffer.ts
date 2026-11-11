@@ -42,3 +42,15 @@ export const appendCappedLogs = <T>(
 
   return { logs, droppedCount: droppedCount + overflow };
 };
+
+const formatCount = (count: number): string => count.toLocaleString('en-US');
+
+export const omittedLogNotice = (droppedCount: number): string | null => {
+  if (droppedCount <= 0) {
+    return null;
+  }
+
+  const kept = formatCount(MAX_LOG_LINES);
+  const dropped = formatCount(droppedCount);
+  return `Showing the last ${kept} lines (${dropped} earlier omitted)`;
+};
