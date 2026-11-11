@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Bun from 'bun';
 import { cac } from 'cac';
+import { isSmokeRun, SMOKE_OK_LINE } from './lib/smoke';
 
 const aliasRegex = /^@\//;
 
@@ -119,6 +120,14 @@ const startUi = async () => {
   const { ErrorBoundary } = await import('@/error');
   const { ExitProvider, fatalExit } = await import('@/exit');
   const { CONFIG } = await import('@/lib/config');
+
+  // The imports above are the check: path aliases, themes, and the OpenTUI
+  // native package. Exit before the renderer (needs a TTY) and before
+  // CONFIG.init (reads ~/.config/lazyvercel). scripts/smoke.ts sets the env.
+  if (isSmokeRun()) {
+    process.stdout.write(`${SMOKE_OK_LINE}\n`);
+    process.exit(0);
+  }
 
   await CONFIG.init();
 

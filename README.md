@@ -97,13 +97,15 @@ bun run dev              # start OpenTUI renderer with live reload
 bun run build            # build distributable to dist/index.js
 bun run lint             # biome linting
 bun run ts               # type-check with tsc --noEmit
+bun run check            # ts, lint, test, and build (same as CI)
+bun run smoke            # boot source, dist, and the packed bin
 ```
 
 The repo uses Lefthook for git hooks (`bun run prepare`) and Biome for formatting/linting. The bundled binary lives at `dist/index.js` and is the file shipped to npm.
 
 ## Releasing
 
-Releases are tag-driven: pushing a `vX.Y.Z` tag that matches the `package.json` version runs `.github/workflows/publish.yml`, which checks, builds, smoke-tests and publishes the package. See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing-maintainers) for the maintainer checklist.
+Releases are tag-driven: pushing a `vX.Y.Z` tag that matches the `package.json` version runs `.github/workflows/publish.yml`, which runs `bun run check`, `bun run smoke`, and publishes the package. See [CONTRIBUTING.md](./CONTRIBUTING.md#releasing-maintainers) for the maintainer checklist.
 
 ## Troubleshooting
 

@@ -31,6 +31,8 @@ Thanks for helping make lazyvercel better! This document describes the local dev
 | Type-check | `bun run ts` |
 | Lint / format check | `bun run lint` |
 | Autofix lint issues | `bun run lint:fix` |
+| Run the CI checks | `bun run check` |
+| Smoke-test that the UI loads | `bun run smoke` |
 
 A few tips:
 - Run `bun run dev` inside a directory that includes `.vercel/project.json` so the CLI can locate a project.
@@ -54,9 +56,8 @@ A few tips:
 
 ## Testing checklist before opening a PR
 
-- [ ] `bun run lint`
-- [ ] `bun run ts`
-- [ ] `bun run build` (if you touched build tooling or release artifacts)
+- [ ] `bun run check` (typecheck, lint, tests, and build)
+- [ ] `bun run smoke` (source entry, built bundle, and packed bin)
 
 ## Releasing (maintainers)
 
@@ -65,7 +66,7 @@ Releases are published to npm by `.github/workflows/publish.yml` when a `vX.Y.Z`
 1. Ensure `main` is green and up-to-date.
 2. Bump the version and tag it: `npm version <patch|minor|major> -m "chore: release v%s"` (creates the `chore: release vX.Y.Z` commit and the `vX.Y.Z` tag).
 3. Push the commit and the tag: `git push --follow-tags`.
-4. Watch the "Publish Package" workflow. It fails if the tag doesn't equal `v` + the `package.json` version, then runs typecheck, lint, tests and build, smoke-tests `dist/index.js`, and publishes.
+4. Watch the "Publish Package" workflow. It fails if the tag doesn't equal `v` + the `package.json` version, then runs `bun run check` and `bun run smoke`, and publishes.
 5. Draft GitHub release notes summarizing highlights.
 
 ## Documentation-only changes
