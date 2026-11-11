@@ -8,6 +8,7 @@ import { DEFAULT_BRANCH } from '@/constants';
 import { useCtx } from '@/ctx';
 import { useDeployments } from '@/hooks/use-deployments';
 import { getBranchesList } from '@/lib/branches';
+import { getDashboardKeyAction } from '@/lib/dashboard-keys';
 import { getBranch } from '@/lib/extract-deploy-details';
 import { DeploymentDetails } from './deployment-details';
 import { DeploymentLogs } from './deployment-logs';
@@ -40,25 +41,26 @@ const ProjectDashboardInner = ({
     : null;
 
   useKeyboard(key => {
-    if (key.name === 'left' || key.name === 'h') {
-      setFocused(prev => (prev > 0 ? prev - 1 : prev));
+    const action = getDashboardKeyAction(key, {
+      modalOpen: modal !== null,
+      canCycleBranch: selectedDeployment === null && branches.length > 0,
+    });
+
+    if (action === 'focus-previous' || action === 'focus-next') {
+      const delta = action === 'focus-previous' ? -1 : 1;
+      setFocused(prev => {
+        const next = prev + delta;
+        if (next < 0 || next > 1) {
+          return prev;
+        }
+        return next;
+      });
       return;
     }
 
-    if (key.name === 'right' || key.name === 'l') {
-      setFocused(prev => (prev < 1 ? prev + 1 : prev));
-      return;
-    }
-
-    if (
-      key.name === 'tab' &&
-      modal === null &&
-      selectedDeployment === null &&
-      branches.length > 0
-    ) {
+    if (action === 'cycle-branch-next' || action === 'cycle-branch-previous') {
       const names = branches.map(([branch]) => branch);
-      const step = key.shift ? -1 : 1;
-
+      const step = action === 'cycle-branch-previous' ? -1 : 1;
       setSelectedBranch(prev => {
         const idx = Math.max(0, names.indexOf(prev));
         return names[(idx + step + names.length) % names.length] ?? prev;
@@ -66,9 +68,9 @@ const ProjectDashboardInner = ({
       return;
     }
 
-    // Force refresh (matches README).
-    if (key.name === 'r' && modal === null) {
-      refresh().catch(err => console.error(err));
+    // Failures are stored on lastError for the Ctrl+E panel.
+    if (action === 'refresh') {
+      refresh();
     }
   });
 

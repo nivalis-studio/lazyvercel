@@ -1,54 +1,77 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCtx } from '@/ctx';
+import {
+  getDeploymentLoadFlags,
+  settleDeploymentFetch,
+} from '@/lib/deployment-load';
 import { fetchProjectDeployments } from '@/lib/deployments';
+import type { DeploymentFetchOutcome } from '@/lib/deployment-load';
 import type { Deployments } from '@/types/vercel-sdk';
 
 const REFETCH_INTERVAL_MS = 10_000;
 
+const readDeployments = async (
+  projectId: string,
+  teamId: string,
+): Promise<DeploymentFetchOutcome<Deployments>> => {
+  try {
+    return {
+      ok: true,
+      deployments: await fetchProjectDeployments(projectId, teamId),
+    };
+  } catch (err) {
+    return { ok: false, error: err };
+  }
+};
+
 export const useDeployments = (projectId: string) => {
   const { teamId, setLastError } = useCtx();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(true);
+  const [hasCompletedInitialFetch, setHasCompletedInitialFetch] =
+    useState(false);
   const [deployments, setDeployments] = useState<Deployments>([]);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number | null>(null);
   const generationRef = useRef(0);
 
-  const fetchDeployment = useCallback(async () => {
-    generationRef.current += 1;
-    const generation = generationRef.current;
+  const fetchDeployment = useCallback(() => {
+    const execute = async () => {
+      generationRef.current += 1;
+      const generation = generationRef.current;
+      setIsFetching(true);
 
-    setIsLoading(true);
+      const outcome = await readDeployments(projectId, teamId);
+      const settled = settleDeploymentFetch({
+        generation,
+        currentGeneration: generationRef.current,
+        outcome,
+      });
 
-    try {
-      const deployments_ = await fetchProjectDeployments(projectId, teamId);
-
-      // Discard stale responses that resolved after a newer fetch started.
-      if (generation !== generationRef.current) {
+      if (settled.status === 'stale') {
         return;
       }
 
-      setDeployments(deployments_);
-      setLastRefreshedAt(Date.now());
-    } finally {
-      if (generation === generationRef.current) {
-        setIsLoading(false);
+      if (settled.status === 'ready') {
+        setDeployments(settled.deployments);
+        setLastRefreshedAt(Date.now());
+      } else {
+        setLastError(settled.error);
       }
-    }
-  }, [teamId, projectId]);
 
-  const handleErr = useCallback(
-    (err: unknown) => {
-      setLastError(err instanceof Error ? err : new Error(String(err)));
-    },
-    [setLastError],
-  );
+      setIsFetching(false);
+      setHasCompletedInitialFetch(true);
+    };
+
+    execute().catch(() => {
+      // Recorded on lastError for the current generation only.
+    });
+  }, [teamId, projectId, setLastError]);
 
   useEffect(() => {
-    fetchDeployment().catch(handleErr);
+    fetchDeployment();
 
-    const interval = setInterval(
-      () => fetchDeployment().catch(handleErr),
-      REFETCH_INTERVAL_MS,
-    );
+    const interval = setInterval(() => {
+      fetchDeployment();
+    }, REFETCH_INTERVAL_MS);
 
     return () => {
       clearInterval(interval);
@@ -57,12 +80,19 @@ export const useDeployments = (projectId: string) => {
       generationRef.current += 1;
       setDeployments([]);
       setLastRefreshedAt(null);
+      setIsFetching(true);
+      setHasCompletedInitialFetch(false);
     };
-  }, [fetchDeployment, handleErr]);
+  }, [fetchDeployment]);
+
+  const { isLoading, isRefreshing } = getDeploymentLoadFlags({
+    isFetching,
+    hasCompletedInitialFetch,
+  });
 
   return {
-    isLoading: isLoading && !deployments.length,
-    isRefreshing: isLoading && deployments.length > 0,
+    isLoading,
+    isRefreshing,
     deployments,
     lastRefreshedAt,
     refresh: fetchDeployment,

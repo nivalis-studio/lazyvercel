@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { useCtx } from '@/ctx';
+import { isUnmodifiedKey } from '@/lib/key-input';
 import type { BoxOptions, ScrollBoxRenderable } from '@opentui/core';
 
 export type ScrollSelectProps = {
@@ -87,13 +88,14 @@ export const ScrollSelect = ({
       return;
     }
 
-    if (key.name === 'down' || key.name === 'j') {
+    // j/k are plain keys. Ctrl+J and Ctrl+K belong to the console.
+    if (key.name === 'down' || isUnmodifiedKey(key, 'j')) {
       const idx = (hoveredIdx + 1) % rows.length;
       onHover(idx);
       return;
     }
 
-    if (key.name === 'up' || key.name === 'k') {
+    if (key.name === 'up' || isUnmodifiedKey(key, 'k')) {
       const idx = (hoveredIdx - 1 + rows.length) % rows.length;
       onHover(idx);
       return;
