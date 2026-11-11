@@ -19,6 +19,7 @@ export const Setup = ({ onComplete }: Props) => {
     }
 
     const status = await checkToken(token);
+    const loggedIn = status !== 'invalid';
 
     if (status === 'unreachable') {
       setError(
@@ -27,15 +28,14 @@ export const Setup = ({ onComplete }: Props) => {
       return;
     }
 
-    if (status === 'invalid') {
+    if (!loggedIn) {
       setError('Invalid or expired token');
       return;
     }
 
     try {
-      CONFIG.save({ ...config, bearerToken: token });
-      await CONFIG.reload();
-
+      // The check above is the token status. Saving must not validate again.
+      CONFIG.save({ ...config, bearerToken: token }, { loggedIn });
       onComplete();
     } catch {
       setError('Failed to save configuration');

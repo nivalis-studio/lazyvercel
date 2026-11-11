@@ -62,18 +62,23 @@ const CtxProviderInner = ({
     });
   }, [refreshProjects]);
 
-  const onSetTheme = async (name: ThemeName, save = false) => {
-    const theme_ =
-      name === 'custom' ? CONFIG.getCustomTheme() : THEMES_MAP[name];
-
+  const onSetTheme = useCallback((name: ThemeName, save = false): boolean => {
     if (save) {
-      const config = CONFIG.get();
-      CONFIG.save({ ...config, theme: name });
-      await CONFIG.reload();
+      try {
+        CONFIG.save({ ...CONFIG.getUnchecked(), theme: name });
+      } catch (error) {
+        const cause = error instanceof Error ? error : new Error(String(error));
+        setLastError(new Error('Failed to save theme', { cause }));
+        setTheme(CONFIG.getTheme());
+        return false;
+      }
     }
 
-    setTheme(theme_);
-  };
+    const nextTheme =
+      name === 'custom' ? CONFIG.getCustomTheme() : THEMES_MAP[name];
+    setTheme(nextTheme);
+    return true;
+  }, []);
 
   const ctx_ = {
     content,
