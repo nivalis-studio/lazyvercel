@@ -29,6 +29,11 @@ const registerPathAliases = () => {
       build.onResolve({ filter: aliasRegex }, args => {
         const subpath = args.path.slice(2);
 
+        const exact = path.join(distRoot, subpath);
+        if (path.extname(subpath) && fs.existsSync(exact)) {
+          return { path: exact };
+        }
+
         const direct = path.join(distRoot, `${subpath}.js`);
         if (fs.existsSync(direct)) {
           return { path: direct };
