@@ -1,11 +1,28 @@
 import { z } from 'zod';
 
-export const logEventSchema = z.object({
-  created: z.number().transform(val => new Date(val)),
-  text: z.string(),
-  level: z.enum(['warning', 'error']).optional(),
-  type: z.string(),
+// Assigned once, at parse time, so a line keeps its key after older lines drop.
+let nextLogEventId = 0;
+
+const LOG_TIME_FORMAT = new Intl.DateTimeFormat('fr-FR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
 });
+
+export const formatLogTimestamp = (created: Date): string =>
+  LOG_TIME_FORMAT.format(created);
+
+export const logEventSchema = z
+  .object({
+    created: z.number().transform(val => new Date(val)),
+    text: z.string(),
+    level: z.enum(['warning', 'error']).optional(),
+    type: z.string(),
+  })
+  .transform(event => {
+    nextLogEventId += 1;
+    return { ...event, id: nextLogEventId };
+  });
 
 export type LogEvent = z.infer<typeof logEventSchema>;
 
