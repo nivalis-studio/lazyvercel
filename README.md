@@ -87,7 +87,7 @@ lazyvercel --debug
 lazyvercel --debug lazyvercel:deployments,lazyvercel:stream
 ```
 
-`--debug` with no namespaces sets `DEBUG=lazyvercel*`, which turns on every `lazyvercel` logger (`lazyvercel:deployments`, `lazyvercel:projects`, `lazyvercel:stream`). Pass a pattern to narrow it. Inside the app, `Ctrl+E` opens the last error panel.
+`--debug` with no namespaces sets `DEBUG=lazyvercel*`, which turns on every `lazyvercel` logger (`lazyvercel:deployments`, `lazyvercel:projects`, `lazyvercel:stream`). Pass a pattern to narrow it. Those loggers call `console.error`. OpenTUI captures `console` into the in-app console (`Ctrl+K` toggles it, `Ctrl+J` focuses it), so the lines do not go to the terminal's stderr. `Ctrl+E` opens the last error panel, which is separate from that console.
 
 ### Keyboard shortcuts
 
@@ -158,7 +158,7 @@ Releases are tag-driven: pushing a `vX.Y.Z` tag that matches the `package.json` 
 - **Invalid token errors** – Delete `~/.config/lazyvercel/config.json` and relaunch; the setup flow will prompt for a new token.
 - **Blank screen on launch** – Ensure your terminal supports truecolor and that Bun is updated to the version in `package.json`.
 - **Logs never load** – Confirm the project allows access to deployment events and that the token’s scope includes deployments.
-- **Debugging a failure** – Rerun with `--debug` (or `--debug lazyvercel:deployments`). Logs are written to stderr. `Ctrl+E` opens the last error caught in the UI.
+- **Debugging a failure** – Rerun with `--debug` (or `--debug lazyvercel:deployments`). Output goes through `console.error` into the in-app console (`Ctrl+K`), not the terminal's stderr. `Ctrl+E` opens the last error caught in the UI.
 
 ## Contributing
 
