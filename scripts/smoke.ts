@@ -75,7 +75,10 @@ const pathExists = async (target: string): Promise<boolean> => {
   }
 };
 
-/** Fingerprint a directory so a write during the smoke run is visible. */
+/**
+ * Names, sizes, and mtimes only. Reading the bytes would open the real
+ * config, which the smoke run must not do.
+ */
 const fingerprintDir = async (dir: string): Promise<string> => {
   if (!(await pathExists(dir))) {
     return 'missing';
@@ -84,10 +87,8 @@ const fingerprintDir = async (dir: string): Promise<string> => {
   const names = (await readdir(dir)).sort();
   const parts = await Promise.all(
     names.map(async name => {
-      const file = path.join(dir, name);
-      const info = await stat(file);
-      const body = info.isFile() ? await readFile(file) : Buffer.alloc(0);
-      return `${name}:${info.size}:${body.toString('hex')}`;
+      const info = await stat(path.join(dir, name));
+      return `${name}:${info.size}:${info.mtimeMs}`;
     }),
   );
   return parts.join('\n');
