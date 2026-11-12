@@ -26,6 +26,8 @@
 		"lint:fix": "biome check --write",
 		"test": "bun test",
 		"build": "bun build ./src/index.tsx --outdir dist --target bun",
+		"check": "bun run ts && bun run lint && bun run test && bun run build",
+		"smoke": "bun scripts/smoke.ts",
 		"prepack": "bun run build",
 		"prepare": "bunx lefthook install",
 		"ts": "tsc --noEmit --incremental"

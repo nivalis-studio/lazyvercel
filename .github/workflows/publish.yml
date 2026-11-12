@@ -31,27 +31,11 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Check typescript
-        run: bun run ts
+      - name: Check
+        run: bun run check
 
-      - name: Check linter
-        run: bun run lint
-
-      - name: Check tests
-        run: bun run test
-
-      - name: Check build
-        run: bun run build
-
-      - name: Smoke test built CLI
-        run: |
-          expected="lazyvercel/$(bun -p 'require("./package.json").version') "
-          actual="$(bun dist/index.js --version)"
-          echo "$actual"
-          case "$actual" in
-            "$expected"*) ;;
-            *) echo "::error::Built CLI printed '$actual', expected it to start with '$expected'"; exit 1 ;;
-          esac
+      - name: Smoke test
+        run: bun run smoke
 
       - name: Publish
         env:
