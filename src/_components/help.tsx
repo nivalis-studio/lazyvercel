@@ -15,6 +15,7 @@ const SECTIONS: Array<[title: string, shortcuts: Array<Shortcut>]> = [
       ['Ctrl+G', 'Switch project'],
       ['Ctrl+E', 'Show last error'],
       ['Ctrl+R', 'Refresh projects'],
+      ['Ctrl+J', 'Focus console'],
       ['Ctrl+K', 'Toggle console'],
       ['Shift+Q / Ctrl+C', 'Quit'],
     ],

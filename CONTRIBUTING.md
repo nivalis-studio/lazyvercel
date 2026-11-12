@@ -4,9 +4,10 @@ Thanks for helping make lazyvercel better! This document describes the local dev
 
 ## Prerequisites
 
-- Bun `>= 1.3.0` (used for development, bundling, and publishing)
-- Node.js 18+ if you rely on Node tooling
+- Bun `>= 1.3.0` for development, bundling, publishing, and the runtime. The CLI shebang is `#!/usr/bin/env bun`; it does not run on Node.
 - A Vercel-linked project (`vercel link`) for testing against real deployments
+
+`.node-version` pins Node 22 for editors that read it. That file is not a runtime requirement.
 
 ## Repository setup
 
@@ -31,6 +32,7 @@ Thanks for helping make lazyvercel better! This document describes the local dev
 | Type-check | `bun run ts` |
 | Lint / format check | `bun run lint` |
 | Autofix lint issues | `bun run lint:fix` |
+| Run tests | `bun run test` |
 | Run the CI checks | `bun run check` |
 | Smoke-test that the UI loads | `bun run smoke` |
 
@@ -71,8 +73,8 @@ Releases are published to npm by `.github/workflows/publish.yml` when a `vX.Y.Z`
 
 ## Documentation-only changes
 
-- For README/CONTRIBUTING/issue-template tweaks, it’s still helpful to run `bun run lint` to enforce markdown formatting where configured.
-- If you update keyboard shortcuts or UX flows, mirror the change in the README’s “Keyboard shortcuts” or “Usage” section.
+- Biome does not lint Markdown here. `bun run lint` still checks TypeScript and JSON you touched; it will not format README or CONTRIBUTING.
+- If you update keyboard shortcuts, change `SECTIONS` in `src/_components/help.tsx` and copy that list into the README “Keyboard shortcuts” section.
 
 ## Need help?
 

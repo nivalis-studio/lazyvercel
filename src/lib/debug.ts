@@ -31,7 +31,8 @@ export const createDebug = (namespace: string): DebugFn => {
   }
 
   return (...args) => {
-    // Use stderr so it doesn't pollute UI rendering stdout.
+    // OpenTUI patches console, so this shows in the in-app console (Ctrl+K),
+    // not on the process stderr. Fatal exits write stderr directly.
     console.error(`[${namespace}]`, ...args);
   };
 };
