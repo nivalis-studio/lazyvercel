@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { CommandPanelModal } from '@/_components/command-panel';
@@ -12,7 +13,12 @@ import {
   MissingProjectId,
   MissingProjectPath,
 } from '@/_components/missing-project';
-import { getThemeColor, THEMES_MAP, type ThemeName } from '@/lib/colors';
+import {
+  getThemeColor,
+  THEMES_MAP,
+  type Theme,
+  type ThemeName,
+} from '@/lib/colors';
 import { CONFIG } from '@/lib/config';
 import { fetchProjects as fetchProjects_ } from '@/lib/projects';
 import { ProjectDashboard } from './_components/project-dashboard';
@@ -27,6 +33,15 @@ import type { Modal } from './types/modal';
 
 const ctx = createContext<Ctx | null>(null);
 
+type ThemeSlice = {
+  theme: Theme;
+  getColor: Ctx['getColor'];
+};
+
+// Rows subscribe here instead of the full context, so a modal or a poll
+// error does not re-render them. Color changes still do.
+const themeCtx = createContext<ThemeSlice | null>(null);
+
 const CtxProviderInner = ({
   children,
   renderer,
@@ -38,8 +53,7 @@ const CtxProviderInner = ({
   teamId: string;
 }>) => {
   const [theme, setTheme] = useState(CONFIG.getTheme());
-  const getColor = getThemeColor(theme);
-  renderer.setBackgroundColor(getColor('background'));
+  const getColor = useMemo(() => getThemeColor(theme), [theme]);
 
   const [content, setContent] = useState(<ProjectDashboard />);
   const [modal, setModal] = useState<Modal | null>(null);
@@ -62,45 +76,86 @@ const CtxProviderInner = ({
     });
   }, [refreshProjects]);
 
-  const onSetTheme = useCallback((name: ThemeName, save = false): boolean => {
-    if (save) {
-      try {
-        CONFIG.save({ ...CONFIG.getUnchecked(), theme: name });
-      } catch (error) {
-        const cause = error instanceof Error ? error : new Error(String(error));
-        setLastError(new Error('Failed to save theme', { cause }));
-        setTheme(CONFIG.getTheme());
-        return false;
+  const handleSetTheme = useCallback(
+    (name: ThemeName, save = false): boolean => {
+      if (save) {
+        try {
+          CONFIG.save({ ...CONFIG.getUnchecked(), theme: name });
+        } catch (error) {
+          const cause =
+            error instanceof Error ? error : new Error(String(error));
+          setLastError(new Error('Failed to save theme', { cause }));
+          setTheme(CONFIG.getTheme());
+          return false;
+        }
       }
-    }
 
-    const nextTheme =
-      name === 'custom' ? CONFIG.getCustomTheme() : THEMES_MAP[name];
-    setTheme(nextTheme);
-    return true;
+      const nextTheme =
+        name === 'custom' ? CONFIG.getCustomTheme() : THEMES_MAP[name];
+      setTheme(nextTheme);
+      return true;
+    },
+    [],
+  );
+
+  const handleSetProjectId = useCallback((id: string) => {
+    setProjectId(id);
+    setContent(<ProjectDashboard />);
   }, []);
 
-  const ctx_ = {
-    content,
-    setContent,
-    modal,
-    setModal,
-    projectId,
-    setProjectId: id => {
-      setProjectId(id);
-      setContent(<ProjectDashboard />);
-    },
-    teamId,
-    projects,
-    refreshProjects,
-    lastError,
-    setLastError,
-    clearLastError: () => setLastError(null),
-    getColor,
-    setTheme: onSetTheme,
-    project: (projects ?? []).find(p => p.id === projectId) ?? null,
-    theme,
-  } satisfies Ctx;
+  const clearLastError = useCallback(() => {
+    setLastError(null);
+  }, []);
+
+  const project = useMemo(
+    () => projects?.find(item => item.id === projectId) ?? null,
+    [projects, projectId],
+  );
+
+  const value = useMemo<Ctx>(
+    () => ({
+      content,
+      setContent,
+      modal,
+      setModal,
+      projectId,
+      setProjectId: handleSetProjectId,
+      teamId,
+      projects,
+      refreshProjects,
+      lastError,
+      setLastError,
+      clearLastError,
+      getColor,
+      setTheme: handleSetTheme,
+      project,
+      theme,
+    }),
+    [
+      content,
+      modal,
+      projectId,
+      handleSetProjectId,
+      teamId,
+      projects,
+      refreshProjects,
+      lastError,
+      clearLastError,
+      getColor,
+      handleSetTheme,
+      project,
+      theme,
+    ],
+  );
+
+  const themeValue = useMemo<ThemeSlice>(
+    () => ({ theme, getColor }),
+    [theme, getColor],
+  );
+
+  useEffect(() => {
+    renderer.setBackgroundColor(getColor('background'));
+  }, [getColor, renderer]);
 
   useKeyboard(key => {
     if (key.ctrl && key.name === 'p') {
@@ -122,7 +177,11 @@ const CtxProviderInner = ({
     }
   });
 
-  return <ctx.Provider value={ctx_}>{children}</ctx.Provider>;
+  return (
+    <ctx.Provider value={value}>
+      <themeCtx.Provider value={themeValue}>{children}</themeCtx.Provider>
+    </ctx.Provider>
+  );
 };
 
 export const CtxProvider = ({
@@ -163,4 +222,14 @@ export const useCtx = () => {
   }
 
   return context;
+};
+
+export const useTheme = () => {
+  const value = useContext(themeCtx);
+
+  if (!value) {
+    throw new Error('useTheme must be used within ctx provider');
+  }
+
+  return value;
 };

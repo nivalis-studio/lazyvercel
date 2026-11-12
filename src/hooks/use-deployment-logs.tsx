@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useCtx } from '@/ctx';
 import { CONFIG } from '@/lib/config';
 import { isDeploymentBuilding } from '@/lib/deployments';
+import { appendCappedLogs, capLogs } from '@/lib/log-buffer';
 import {
   type LogEvent,
   logEventSchema,
@@ -15,8 +16,15 @@ export type { LogEvent } from '@/lib/log-events';
 // Live events are flushed into state at most once per this interval.
 const LIVE_FLUSH_MS = 50;
 
+type LogBuffer = {
+  logs: Array<LogEvent>;
+  droppedCount: number;
+};
+
+const EMPTY_LOGS: LogBuffer = { logs: [], droppedCount: 0 };
+
 export const useDeploymentLogs = (deployment: Deployment) => {
-  const [logs, setLogs] = useState<Array<LogEvent>>([]);
+  const [logBuffer, setLogBuffer] = useState<LogBuffer>(EMPTY_LOGS);
   const [loading, setLoading] = useState(false);
   const { teamId, setLastError } = useCtx();
 
@@ -54,7 +62,7 @@ export const useDeploymentLogs = (deployment: Deployment) => {
         if (signal.aborted) {
           return;
         }
-        setLogs(parseLogEvents(body));
+        setLogBuffer(capLogs(parseLogEvents(body)));
       } finally {
         setLoading(false);
       }
@@ -85,7 +93,9 @@ export const useDeploymentLogs = (deployment: Deployment) => {
         if (controller.signal.aborted || batch.length === 0) {
           return;
         }
-        setLogs(prev => prev.concat(batch));
+        setLogBuffer(prev =>
+          appendCappedLogs(prev.logs, batch, prev.droppedCount),
+        );
       };
 
       try {
@@ -144,5 +154,9 @@ export const useDeploymentLogs = (deployment: Deployment) => {
     };
   }, [isLive, fetchFiniteLogs, fetchLiveLogs, handleError]);
 
-  return { logs, loading };
+  return {
+    logs: logBuffer.logs,
+    loading,
+    droppedCount: logBuffer.droppedCount,
+  };
 };

@@ -1,11 +1,42 @@
 import { type ScrollBoxRenderable, TextAttributes } from '@opentui/core';
 import { useKeyboard } from '@opentui/react';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { type LogEvent, useDeploymentLogs } from '@/hooks/use-deployment-logs';
+import { omittedLogNotice } from '@/lib/log-buffer';
+import { formatLogTimestamp } from '@/lib/log-events';
 import { openUrl } from '@/lib/open-url';
+import type { Ctx } from '@/types/ctx';
 import type { Deployment } from '@/types/vercel-sdk';
+
+type LogLineProps = {
+  log: LogEvent;
+  getColor: Ctx['getColor'];
+};
+
+const logLineColor = (log: LogEvent, getColor: Ctx['getColor']): string => {
+  if (log.level === 'warning') {
+    return getColor('warning');
+  }
+
+  if (log.type === 'stderr' || log.level === 'error') {
+    return getColor('error');
+  }
+
+  return getColor('markdownText');
+};
+
+const LogLine = memo(function LogLineView({ log, getColor }: LogLineProps) {
+  return (
+    <box flexDirection='row' gap={1}>
+      <text fg={getColor('syntaxComment')} flexShrink={0}>
+        {formatLogTimestamp(log.created)}
+      </text>
+      <text fg={logLineColor(log, getColor)}>{log.text || ''}</text>
+    </box>
+  );
+});
 
 type Props = {
   deployment: Deployment;
@@ -24,7 +55,7 @@ export const DeploymentLogs = ({
   const { getColor, setLastError } = useCtx();
   const scrollRef = useRef<ScrollBoxRenderable | null>(null);
 
-  const { logs, loading } = useDeploymentLogs(deployment);
+  const { logs, loading, droppedCount } = useDeploymentLogs(deployment);
 
   useKeyboard(key => {
     if (!focused) {
@@ -44,34 +75,7 @@ export const DeploymentLogs = ({
     }
   });
 
-  const renderLogLine = (log: LogEvent, index: number) => {
-    const logText = log.text || '';
-    const logType = log.type;
-
-    let fg = getColor('markdownText');
-    if (logType === 'stderr' || log.level === 'error') {
-      fg = getColor('error');
-    }
-
-    if (log.level === 'warning') {
-      fg = getColor('warning');
-    }
-
-    const key = `${log.created}-${index}`;
-
-    return (
-      <box flexDirection='row' gap={1} key={key}>
-        <text fg={getColor('syntaxComment')} flexShrink={0}>
-          {log.created.toLocaleString('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          })}
-        </text>
-        <text fg={fg}>{logText}</text>
-      </box>
-    );
-  };
+  const omittedNotice = omittedLogNotice(droppedCount);
 
   return (
     <box
@@ -84,6 +88,10 @@ export const DeploymentLogs = ({
       title={deployment.uid}
       {...props}
     >
+      {omittedNotice ? (
+        <text attributes={TextAttributes.DIM}>{omittedNotice}</text>
+      ) : null}
+
       <scrollbox
         flexDirection='column'
         flexGrow={1}
@@ -100,7 +108,11 @@ export const DeploymentLogs = ({
           <text attributes={TextAttributes.DIM}>No build logs available</text>
         )}
 
-        {!loading && logs.length > 0 && logs.map(renderLogLine)}
+        {!loading &&
+          logs.length > 0 &&
+          logs.map(log => (
+            <LogLine getColor={getColor} key={log.id} log={log} />
+          ))}
       </scrollbox>
     </box>
   );

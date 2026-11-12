@@ -1,4 +1,5 @@
-import { useCtx } from '@/ctx';
+import { memo } from 'react';
+import { useTheme } from '@/ctx';
 import {
   getBranch,
   getCommit,
@@ -17,14 +18,14 @@ const truncate = (str: string, len: number) =>
 const MAX_URL_LENGTH = 55;
 const MAX_BRANCH_LENGTH = 30;
 
-export const DeploymentListRow = ({
+export const DeploymentListRow = memo(function DeploymentRow({
   deployment,
 }: {
   deployment: Deployment;
-}) => {
-  const ctx = useCtx();
+}) {
+  const { theme } = useTheme();
   const createdAt = getCreatedAt(deployment);
-  const status = getStatusInfo(deployment, ctx.theme);
+  const status = getStatusInfo(deployment, theme);
   const branch = getBranch(deployment);
   const commit = getCommit(deployment);
   const target = deployment.target;
@@ -72,4 +73,4 @@ export const DeploymentListRow = ({
       </box>
     </box>
   );
-};
+});
