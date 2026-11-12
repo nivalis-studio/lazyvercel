@@ -19,5 +19,6 @@ export type Ctx = {
   teamId: string;
   getColor: (color: keyof Theme['theme']) => string;
   theme: Theme;
-  setTheme: (theme: ThemeName, save?: boolean) => Promise<void>;
+  // False when a requested save fails. The saved theme stays in place.
+  setTheme: (theme: ThemeName, save?: boolean) => boolean;
 };

@@ -14,8 +14,16 @@ const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>;
 
-const CONFIG_DIR = path.join(os.homedir(), '.config', 'lazyvercel');
-const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
+const DEFAULT_CONFIG_DIR = path.join(os.homedir(), '.config', 'lazyvercel');
+
+// Tests point this at a temp directory. Production keeps ~/.config/lazyvercel.
+let configDir = DEFAULT_CONFIG_DIR;
+
+const resolveConfigPath = (): string => path.join(configDir, 'config.json');
+
+export const setConfigDirectory = (directory?: string): void => {
+  configDir = directory ?? DEFAULT_CONFIG_DIR;
+};
 
 type LoadedConfig = {
   config: Config;
@@ -28,18 +36,23 @@ const DEFAULT_CONFIG: Config = {
   customTheme: THEMES_MAP.catppuccin,
 };
 
-const saveConfig = (config: Config) => {
-  if (!fs.existsSync(CONFIG_DIR)) {
-    fs.mkdirSync(CONFIG_DIR, { recursive: true });
+const saveConfig = (config: Config): void => {
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
   }
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+  fs.writeFileSync(
+    resolveConfigPath(),
+    JSON.stringify(config, null, 2),
+    'utf8',
+  );
 };
 
-const backupCorruptConfig = (content: string) => {
+const backupCorruptConfig = (content: string): void => {
+  const configPath = resolveConfigPath();
   try {
     const ts = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupPath = `${CONFIG_PATH}.bak-${ts}`;
-    fs.renameSync(CONFIG_PATH, backupPath);
+    const backupPath = `${configPath}.bak-${ts}`;
+    fs.renameSync(configPath, backupPath);
     fs.writeFileSync(backupPath, content, 'utf8');
   } catch {
     0;
@@ -47,14 +60,16 @@ const backupCorruptConfig = (content: string) => {
 };
 
 const loadConfig = async (): Promise<LoadedConfig> => {
-  if (!fs.existsSync(CONFIG_PATH)) {
+  const configPath = resolveConfigPath();
+
+  if (!fs.existsSync(configPath)) {
     saveConfig(DEFAULT_CONFIG);
     return { config: DEFAULT_CONFIG, loggedIn: false };
   }
 
   let content: string;
   try {
-    content = fs.readFileSync(CONFIG_PATH, 'utf8');
+    content = fs.readFileSync(configPath, 'utf8');
   } catch (error) {
     throw new Error('Failed to read configuration file', { cause: error });
   }
@@ -153,8 +168,18 @@ export const CONFIG = {
   isLoggedIn() {
     return _config.loggedIn;
   },
-  save: saveConfig,
-  async reload() {
+  // Write the file and patch memory. Pass `loggedIn` when the token status is
+  // already known so the write does not check the token again.
+  save(config: Config, options?: { loggedIn?: boolean }): void {
+    saveConfig(config);
+    _config = {
+      config,
+      loggedIn: options?.loggedIn ?? _config.loggedIn,
+    };
+  },
+  // Re-reads the file and checks the token. Theme and setup saves must not
+  // call this: a theme write is local, and setup already checked the token.
+  async reload(): Promise<void> {
     _config = await loadConfig();
     _initPromise = Promise.resolve();
   },

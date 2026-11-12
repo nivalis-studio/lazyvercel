@@ -1,4 +1,5 @@
 import { useKeyboard } from '@opentui/react';
+import { useEffect, useRef } from 'react';
 import { QUITTING_KEYS } from '@/constants';
 import { useCtx } from '@/ctx';
 import { THEMES } from '@/lib/colors';
@@ -8,8 +9,21 @@ import type { Modal } from '@/types/modal';
 
 const ThemeSwitcher = () => {
   const { setTheme, setModal, getColor } = useCtx();
+  const hasSavedRef = useRef(false);
+  const current = CONFIG.getUnchecked().theme;
 
-  const current = CONFIG.get().theme;
+  // Hover previews a theme in React state only. Leaving by any route
+  // (quit, ?, Ctrl+E, Ctrl+P, Ctrl+G) restores the saved theme unless
+  // this select just persisted it.
+  useEffect(() => {
+    return () => {
+      if (hasSavedRef.current) {
+        return;
+      }
+
+      setTheme(CONFIG.getUnchecked().theme);
+    };
+  }, [setTheme]);
 
   const onHover = (idx: number) => {
     const selected = THEMES[idx];
@@ -21,20 +35,23 @@ const ThemeSwitcher = () => {
     setTheme(selected);
   };
 
-  const onSelect = async (idx: number) => {
+  const onSelect = (idx: number) => {
     const selected = THEMES[idx];
 
     if (!selected) {
       return;
     }
 
-    await setTheme(selected, true);
+    if (!setTheme(selected, true)) {
+      return;
+    }
+
+    hasSavedRef.current = true;
     setModal(null);
   };
 
   useKeyboard(key => {
     if (QUITTING_KEYS.includes(key.name)) {
-      setTheme(CONFIG.get().theme);
       setModal(null);
     }
   });
