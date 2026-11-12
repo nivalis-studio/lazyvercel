@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { Vercel } from '@vercel/sdk';
 import z from 'zod';
 import { THEMES_MAP, type Theme, themeNameSchema, themeSchema } from './colors';
 
@@ -150,13 +149,6 @@ export const CONFIG = {
   },
   getUnchecked() {
     return _config.config;
-  },
-  getVercel() {
-    if (!_config.loggedIn) {
-      throw new Error('Invalid or expired bearer token');
-    }
-
-    return new Vercel({ bearerToken: _config.config.bearerToken });
   },
   getCustomTheme(): Theme {
     return _config.config.customTheme;

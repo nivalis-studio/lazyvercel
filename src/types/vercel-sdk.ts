@@ -1,12 +1,7 @@
-import type { Vercel } from '@vercel/sdk';
+// Hand-written shapes of the Vercel REST data this app reads (the file name is
+// historical). Deployment types come from the zod schema in
+// src/lib/deployments.ts. List only fields that are read somewhere in src/.
+export type { Deployment, Deployments } from '@/lib/deployments';
 
-type VercelClient = Vercel;
-
-export type Deployments = Awaited<
-  ReturnType<VercelClient['deployments']['getDeployments']>
->['deployments'];
-export type Deployment = Deployments[number];
-export type Projects = Awaited<
-  ReturnType<VercelClient['projects']['getProjects']>
->['projects'];
-export type Project = Projects[number];
+export type Project = { id: string; name: string };
+export type Projects = Array<Project>;
